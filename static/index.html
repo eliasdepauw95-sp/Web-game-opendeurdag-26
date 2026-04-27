@@ -12,22 +12,41 @@
 
     <!-- UI TOP BAR -->
     <div class="ui">
-        <div class="stats">
-            <span>Gold: $<span id="gold">100</span></span>
-            <span>Lives: <span id="lives">♥ x20</span></span>
-            <span>Wave: <span id="wave">1</span></span>
-            <span>Score: <span id="score">0</span></span>
+        <div class="ui-head">
+            <div class="stats">
+                <div class="stat-card">
+                    <span class="stat-label">Gold</span>
+                    <span class="stat-value">$<span id="gold">100</span></span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">Lives</span>
+                    <span class="stat-value"><span id="lives">&#9829; x20</span></span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">Wave</span>
+                    <span class="stat-value"><span id="wave">1</span></span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">Score</span>
+                    <span class="stat-value"><span id="score">0</span></span>
+                </div>
+            </div>
+
+            <div class="wave-controls">
+                <button id="startWave" class="start-btn">Start Wave</button>
+                <button id="autoStartToggle" class="start-btn auto-btn">Auto: OFF</button>
+            </div>
         </div>
 
         <div class="tower-selection">
             <button id="tower1" class="tower-btn t1" data-cost="50">Basic<br><small>$50</small></button>
             <button id="tower2" class="tower-btn t2" data-cost="80">Heavy<br><small>$80</small></button>
-            <button id="tower3" class="tower-btn t3" data-cost="100">Sniper<br><small>$150</small></button>
+            <button id="tower3" class="tower-btn t3" data-cost="150">Sniper<br><small>$150</small></button>
             <button id="tower4" class="tower-btn t4" data-cost="60">Rapid<br><small>$60</small></button>
             <button id="tower5" class="tower-btn t5" data-cost="90">Freeze<br><small>$90</small></button>
             <button id="tower6" class="tower-btn t6" data-cost="130">Pulse<br><small>$130</small></button>
-            <button id="startWave" class="start-btn">Start Wave</button>
-            <button id="autoStartToggle" class="start-btn auto-btn">Auto: OFF</button>
+            <button id="tower7" class="tower-btn t7" data-cost="170">Launcher<br><small>$170</small></button>
+            <button id="tower8" class="tower-btn t8" data-cost="190">Tesla<br><small>$190</small></button>
         </div>
     </div>
 
@@ -49,11 +68,12 @@
         <h3>Upgrade Tower</h3>
         <div id="towerInfo" class="tower-info"></div>
         <div class="upgrade-buttons">
-            <button id="fireBtn">🔥 Fire Rate</button>
-            <button id="damageBtn">💥 Damage</button>
-            <button id="rangeBtn">🎯 Range</button>
+            <button id="fireBtn">Fire Rate</button>
+            <button id="damageBtn">Damage</button>
+            <button id="rangeBtn">Range</button>
+            <button id="specialBtn">Special</button>
         </div>
-        <button id="sellBtn" class="sell-btn">💰 Sell Tower</button>
+        <button id="sellBtn" class="sell-btn">Sell Tower</button>
     </div>
 
     <!-- GAME OVER -->

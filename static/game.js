@@ -15,6 +15,19 @@ const TOWER_DEFS = {
 4: { color: '#FFD700', range: 100, damage: 10,  fireRate: 200,  cost: 60,  label: 'Rapid'  },
 5: { color: '#BF5FFF', range: 140, damage: 10, fireRate: 1000, cost: 90,  label: 'Freeze'   },
 6: { color: '#00CED1', range: 150, damage: 10, fireRate: 1500, cost: 130, label: 'Pulse', aoe: true },
+7: { color: '#FF7F50', range: 210, damage: 36, fireRate: 1200, cost: 170, label: 'Launcher', pierce: 1, armorPen: 2 },
+8: { color: '#64E6FF', range: 180, damage: 24, fireRate: 700, cost: 190, label: 'Tesla', armorPen: 3 },
+};
+
+const TOWER_SPECIALS = {
+1: { name: 'Squad Link', max: 2, desc: '+1 extra target per shot' },
+2: { name: 'AP Shells', max: 3, desc: '+4 armor penetration' },
+3: { name: 'Deadeye', max: 3, desc: '+1 pierce and faster reload' },
+4: { name: 'Twin Barrels', max: 2, desc: '+2 extra targets per shot' },
+5: { name: 'Deep Freeze', max: 3, desc: 'Stronger and longer slow' },
+6: { name: 'Overcharge', max: 3, desc: '+range and +damage pulse' },
+7: { name: 'Shrapnel Core', max: 3, desc: '+1 target and +2 armor pen' },
+8: { name: 'Ion Core', max: 3, desc: '+damage and faster fire rate' },
 };
 
 // ================= ENEMY DEFINITIES =================
@@ -49,6 +62,11 @@ let gameState = {
 let damageTexts = [];
 let pulseEffects = [];
 
+function roundTo(value, decimals = 2) {
+    const factor = 10 ** decimals;
+    return Math.round((value + Number.EPSILON) * factor) / factor;
+}
+
 // ================= PAD =================
 const path = [
     {x: 0, y: 7}, {x: 4, y: 7}, {x: 4, y: 3}, {x: 8, y: 3},
@@ -58,14 +76,27 @@ const path = [
 
 function drawBackground() {
     const bg = ctx.createLinearGradient(0, 0, 0, canvas.height);
-    bg.addColorStop(0, '#9fd5ff');
-    bg.addColorStop(0.5, '#7cc987');
-    bg.addColorStop(1, '#4a9d57');
+    bg.addColorStop(0, '#8bd8ff');
+    bg.addColorStop(0.45, '#5ad07f');
+    bg.addColorStop(1, '#2ea65f');
     ctx.fillStyle = bg;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+    // kleurvlekken voor extra levendigheid
+    const accentA = ctx.createRadialGradient(140, 90, 20, 140, 90, 230);
+    accentA.addColorStop(0, 'rgba(255, 235, 110, 0.22)');
+    accentA.addColorStop(1, 'rgba(255, 235, 110, 0)');
+    ctx.fillStyle = accentA;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    const accentB = ctx.createRadialGradient(870, 120, 20, 870, 120, 230);
+    accentB.addColorStop(0, 'rgba(115, 210, 255, 0.2)');
+    accentB.addColorStop(1, 'rgba(115, 210, 255, 0)');
+    ctx.fillStyle = accentB;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
     // zachte heuvels voor diepte
-    ctx.fillStyle = 'rgba(255,255,255,0.16)';
+    ctx.fillStyle = 'rgba(255,255,255,0.14)';
     ctx.beginPath();
     ctx.arc(190, 560, 230, Math.PI, Math.PI * 2);
     ctx.arc(560, 580, 270, Math.PI, Math.PI * 2);
@@ -73,7 +104,7 @@ function drawBackground() {
     ctx.fill();
 
     // subtiele tegel-grid
-    ctx.strokeStyle = 'rgba(255,255,255,0.12)';
+    ctx.strokeStyle = 'rgba(255,255,255,0.09)';
     ctx.lineWidth = 1;
     for (let x = 0; x <= canvas.width; x += TILE_SIZE) {
         ctx.beginPath();
@@ -90,20 +121,48 @@ function drawBackground() {
 }
 
 function drawPath() {
-    ctx.strokeStyle = '#D2691E';
-    ctx.lineWidth = 28;
+    const startX = path[0].x * TILE_SIZE + 20;
+    const startY = path[0].y * TILE_SIZE + 20;
+
+    // buitenrand
+    ctx.strokeStyle = '#73421b';
+    ctx.lineWidth = 34;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
     ctx.beginPath();
-    ctx.moveTo(path[0].x * TILE_SIZE + 20, path[0].y * TILE_SIZE + 20);
+    ctx.moveTo(startX, startY);
     for (let i = 1; i < path.length; i++) {
         ctx.lineTo(path[i].x * TILE_SIZE + 20, path[i].y * TILE_SIZE + 20);
     }
     ctx.stroke();
+
+    // hoofdweg
+    ctx.strokeStyle = '#d87a2c';
+    ctx.lineWidth = 28;
+    ctx.beginPath();
+    ctx.moveTo(startX, startY);
+    for (let i = 1; i < path.length; i++) {
+        ctx.lineTo(path[i].x * TILE_SIZE + 20, path[i].y * TILE_SIZE + 20);
+    }
+    ctx.stroke();
+
+    // middenlijn
+    ctx.strokeStyle = 'rgba(255, 214, 94, 0.7)';
+    ctx.lineWidth = 3;
+    ctx.setLineDash([8, 8]);
+    ctx.beginPath();
+    ctx.moveTo(startX, startY);
+    for (let i = 1; i < path.length; i++) {
+        ctx.lineTo(path[i].x * TILE_SIZE + 20, path[i].y * TILE_SIZE + 20);
+    }
+    ctx.stroke();
+    ctx.setLineDash([]);
 }
 
 function formatLives(lives) {
     if (lives <= 0) return '0';
     const visibleHearts = Math.min(5, lives);
-    const hearts = '♥'.repeat(visibleHearts);
+    const hearts = '\u2665'.repeat(visibleHearts);
     return lives > 5 ? `${hearts} x${lives}` : hearts;
 }
 
@@ -116,11 +175,17 @@ class Tower {
 
         const def = TOWER_DEFS[type];
         this.color      = def.color;
-        this.range      = def.range;
-        this.damage     = def.damage;
-        this.fireRate   = def.fireRate;
+        this.range      = Math.round(def.range);
+        this.damage     = Math.round(def.damage);
+        this.fireRate   = Math.round(def.fireRate);
         this.isAoe      = !!def.aoe;
         this.pierce     = def.pierce || 0;
+        this.extraPierce = 0;
+        this.projectilesPerShot = 1;
+        this.armorPen = def.armorPen || 0;
+        this.slowDuration = 1500;
+        this.slowFactor = 0.25;
+        this.specialLevel = 0;
         this.level      = 1;
         this.upgradeCost = def.cost;
 
@@ -164,9 +229,27 @@ class Tower {
     }
 
     shoot() {
-        gameState.projectiles.push(
-            new Projectile(this.x, this.y, this.target, this.damage, this.type, this.color, this.pierce)
-        );
+        const targets = this.getEnemiesInRange()
+            .sort((a, b) => Math.hypot(this.x - a.x, this.y - a.y) - Math.hypot(this.x - b.x, this.y - b.y))
+            .slice(0, this.projectilesPerShot);
+        if (targets.length === 0) return;
+
+        for (let target of targets) {
+            gameState.projectiles.push(
+                new Projectile(
+                    this.x,
+                    this.y,
+                    target,
+                    this.damage,
+                    this.type,
+                    this.color,
+                    this.pierce + this.extraPierce,
+                    this.armorPen,
+                    this.slowDuration,
+                    this.slowFactor
+                )
+            );
+        }
     }
 
     pulse(enemiesInRange) {
@@ -354,6 +437,51 @@ class Tower {
             ctx.beginPath();
             ctx.arc(this.x, this.y, 16 + pulse * 4, 0, Math.PI * 2);
             ctx.stroke();
+        } else if (this.type === 7) {
+            // Launcher: heavy artillery top view
+            ctx.fillStyle = '#5f321d';
+            ctx.fillRect(this.x - 16, this.y - 16, 32, 32);
+            ctx.fillStyle = '#8f4f2b';
+            ctx.fillRect(this.x - 12, this.y - 12, 24, 24);
+            ctx.strokeStyle = '#d88d57';
+            ctx.lineWidth = 1.5;
+            ctx.strokeRect(this.x - 12, this.y - 12, 24, 24);
+
+            ctx.save();
+            ctx.translate(this.x, this.y);
+            ctx.rotate(angle);
+            ctx.fillStyle = '#2f2d2a';
+            ctx.fillRect(0, -5, 14, 10);
+            ctx.fillStyle = '#ff9b57';
+            ctx.fillRect(12, -4, 10, 8);
+            ctx.restore();
+        } else if (this.type === 8) {
+            // Tesla: coil emitter
+            const pulse = 0.5 + 0.5 * Math.sin(now / 150);
+            ctx.fillStyle = '#103f56';
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, 15, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = '#74e7ff';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, 11, 0, Math.PI * 2);
+            ctx.stroke();
+
+            ctx.fillStyle = '#b9f6ff';
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, 4 + pulse * 2.5, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.strokeStyle = `rgba(100,230,255,${0.4 + pulse * 0.5})`;
+            ctx.lineWidth = 2;
+            for (let i = 0; i < 4; i++) {
+                const a = angle + i * (Math.PI / 2);
+                ctx.beginPath();
+                ctx.moveTo(this.x + Math.cos(a) * 7, this.y + Math.sin(a) * 7);
+                ctx.lineTo(this.x + Math.cos(a) * 15, this.y + Math.sin(a) * 15);
+                ctx.stroke();
+            }
         }
 
         // level badge
@@ -393,9 +521,9 @@ class Enemy {
         this.color      = def.color;
         this.armor      = def.armor;
 
-        this.health     = baseHp    * def.hpMult;
+        this.health     = Math.max(1, Math.round(baseHp * def.hpMult));
         this.maxHealth  = this.health;
-        this.speed      = baseSpeed * def.speedMult;
+        this.speed      = roundTo(baseSpeed * def.speedMult, 3);
         this.reward     = Math.round(baseReward * def.rewardMult);
 
         this.rewardGiven = false;
@@ -433,9 +561,10 @@ class Enemy {
         return true;
     }
 
-    takeDamage(dmg) {
-        const actual = Math.max(1, dmg - this.armor);
-        this.health -= actual;
+    takeDamage(dmg, armorPen = 0) {
+        const effectiveArmor = Math.max(0, this.armor - armorPen);
+        const actual = Math.max(1, Math.round(dmg - effectiveArmor));
+        this.health = Math.max(0, this.health - actual);
         return actual;
     }
 
@@ -462,31 +591,54 @@ class Enemy {
             ctx.translate(this.x, y);
             ctx.rotate(dirA);
 
-            // soldier top-view
-            ctx.fillStyle = '#3d5d2f';
-            ctx.fillRect(-4.5, -2, 9, 11);
-            ctx.fillStyle = '#5f7b46';
-            ctx.fillRect(-3.2, -9, 6.4, 7);
+            const step = Math.sin(now / 120 + this.x * 0.07) * 0.8;
 
-            ctx.strokeStyle = '#2a3a22';
-            ctx.lineWidth = 1.2;
+            // backpack
+            ctx.fillStyle = '#324a2a';
+            ctx.fillRect(-2.6, 2.2, 5.2, 4.8);
+
+            // torso
+            ctx.fillStyle = '#4f7340';
+            ctx.fillRect(-4.6, -0.8, 9.2, 10);
+
+            // vest plate
+            ctx.fillStyle = '#3a5a2f';
+            ctx.fillRect(-2.5, 1, 5, 5.2);
+
+            // helmet
+            ctx.fillStyle = '#6f8c57';
             ctx.beginPath();
-            ctx.arc(0, -5.5, 3.2, 0, Math.PI * 2);
+            ctx.arc(0, -5.6, 3.7, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = '#405334';
+            ctx.lineWidth = 1.1;
+            ctx.beginPath();
+            ctx.arc(0, -5.6, 3.7, 0, Math.PI * 2);
             ctx.stroke();
 
-            ctx.fillStyle = '#4e693b';
-            ctx.fillRect(-7.5, -1, 3, 6);
-            ctx.fillRect(4.5, -1, 3, 6);
+            // visor highlight
+            ctx.fillStyle = 'rgba(190,230,255,0.55)';
+            ctx.fillRect(-1.9, -6.3, 3.8, 1.1);
 
-            ctx.fillStyle = '#2b2b2b';
-            ctx.fillRect(-4.5, 9, 3.2, 3);
-            ctx.fillRect(1.3, 9, 3.2, 3);
+            // arms
+            ctx.fillStyle = '#5f8450';
+            ctx.fillRect(-7.2, 0.2, 2.4, 5.5);
+            ctx.fillRect(4.8, 0.2, 2.4, 5.5);
+
+            // legs / boots
+            ctx.fillStyle = '#2f4726';
+            ctx.fillRect(-4.1 + step * 0.2, 8.6, 2.8, 3.2);
+            ctx.fillRect(1.3 - step * 0.2, 8.6, 2.8, 3.2);
+            ctx.fillStyle = '#232323';
+            ctx.fillRect(-4.3 + step * 0.2, 11.1, 3.2, 1.6);
+            ctx.fillRect(1.1 - step * 0.2, 11.1, 3.2, 1.6);
 
             // rifle
-            ctx.fillStyle = '#2f2f31';
-            ctx.fillRect(3.8, -0.8, 9, 1.6);
-            ctx.fillStyle = '#7b5a36';
-            ctx.fillRect(2, -0.8, 2.5, 1.6);
+            ctx.fillStyle = '#2a2c2f';
+            ctx.fillRect(3.4, -0.4, 10.2, 1.8);
+            ctx.fillRect(11.8, -1.1, 1.5, 3.2);
+            ctx.fillStyle = '#74532f';
+            ctx.fillRect(1.6, -0.4, 2.4, 1.8);
             ctx.restore();
         } else if (this.type === 'fast') {
             ctx.save();
@@ -669,16 +821,19 @@ class Enemy {
 
 // ================= PROJECTILE =================
 class Projectile {
-    constructor(x, y, target, damage, towerType, color, pierce = 0) {
+    constructor(x, y, target, damage, towerType, color, pierce = 0, armorPen = 0, slowDuration = 1500, slowFactor = 0.25) {
         this.x          = x;
         this.y          = y;
         this.target     = target;
         this.damage     = damage;
         this.towerType  = towerType;
         this.color      = color;
-        this.speed      = towerType === 3 ? 12 : towerType === 4 ? 9 : 7;
+        this.speed      = towerType === 3 ? 12 : towerType === 4 ? 9 : towerType === 8 ? 10 : towerType === 7 ? 6 : 7;
         this.pierceLeft = pierce + 1;
         this.hitEnemies = new Set();
+        this.armorPen   = armorPen;
+        this.slowDuration = slowDuration;
+        this.slowFactor = slowFactor;
         this.vx         = 0;
         this.vy         = 0;
 
@@ -692,7 +847,7 @@ class Projectile {
     }
 
     dealHit(enemy) {
-        const actual = enemy.takeDamage(this.damage);
+        const actual = enemy.takeDamage(this.damage, this.armorPen);
 
         damageTexts.push({
             x:    enemy.x,
@@ -704,8 +859,8 @@ class Projectile {
 
         // slow toren vertraagt vijand 1.5 seconden
         if (this.towerType === 5) {
-            enemy.slowUntil  = Date.now() + 1500;
-            enemy.slowFactor = 0.25;
+            enemy.slowUntil  = Date.now() + this.slowDuration;
+            enemy.slowFactor = this.slowFactor;
         }
     }
 
@@ -750,10 +905,14 @@ class Projectile {
 
     draw() {
         const size = this.towerType === 3 ? 5 : this.towerType === 4 ? 3 : 4;
+        ctx.save();
+        ctx.shadowBlur = this.towerType === 3 ? 12 : 8;
+        ctx.shadowColor = this.color;
         ctx.fillStyle = this.color;
         ctx.beginPath();
         ctx.arc(this.x, this.y, size, 0, Math.PI * 2);
         ctx.fill();
+        ctx.restore();
     }
 }
 
@@ -802,8 +961,8 @@ function spawnWave() {
     gameState.spawningWave = true;
     setWaveButton(false);
 
-    const baseHp     = 30 * Math.pow(1.12, gameState.wave);
-    const baseSpeed  = 0.8 + gameState.wave * 0.02;
+    const baseHp     = Math.round(30 * Math.pow(1.12, gameState.wave));
+    const baseSpeed  = roundTo(0.8 + gameState.wave * 0.02, 3);
     const baseReward = 8 + gameState.wave * 2;
 
     const queue = buildWaveQueue(gameState.wave);
@@ -859,9 +1018,49 @@ function queueAutoWaveStart(delay = 900) {
     }, delay);
 }
 
+function getTowerSpecialData(towerType) {
+    return TOWER_SPECIALS[towerType] || { name: 'Special', max: 1, desc: '' };
+}
+
+function canApplySpecialUpgrade(tower) {
+    const special = getTowerSpecialData(tower.type);
+    return tower.specialLevel < special.max;
+}
+
+function applySpecialUpgrade(tower) {
+    if (!canApplySpecialUpgrade(tower)) return false;
+
+    if (tower.type === 1) {
+        tower.projectilesPerShot += 1;
+    } else if (tower.type === 2) {
+        tower.armorPen += 4;
+    } else if (tower.type === 3) {
+        tower.extraPierce += 1;
+        tower.fireRate = Math.max(120, Math.round(tower.fireRate * 0.9));
+    } else if (tower.type === 4) {
+        tower.projectilesPerShot += 2;
+    } else if (tower.type === 5) {
+        tower.slowDuration += 600;
+        tower.slowFactor = roundTo(Math.max(0.08, tower.slowFactor * 0.82), 2);
+    } else if (tower.type === 6) {
+        tower.range = Math.round(tower.range + 18);
+        tower.damage = Math.round(tower.damage * 1.12);
+    } else if (tower.type === 7) {
+        tower.projectilesPerShot += 1;
+        tower.armorPen += 2;
+    } else if (tower.type === 8) {
+        tower.damage = Math.round(tower.damage * 1.2);
+        tower.fireRate = Math.max(120, Math.round(tower.fireRate * 0.88));
+    }
+
+    tower.specialLevel++;
+    return true;
+}
+
 function updateUpgradePanel() {
     const panel = document.getElementById('upgradePanel');
     const info  = document.getElementById('towerInfo');
+    const specialBtn = document.getElementById('specialBtn');
 
     if (!gameState.selectedTower) {
         panel.style.display = 'none';
@@ -870,39 +1069,65 @@ function updateUpgradePanel() {
 
     const t = gameState.selectedTower;
     const def = TOWER_DEFS[t.type];
+    const special = getTowerSpecialData(t.type);
 
     panel.style.display = 'flex';
+    const infoLines = [];
+    infoLines.push(`<b>${def.label} Tower</b>`);
+    infoLines.push(`Level: ${t.level}`);
+    infoLines.push(`Damage: ${Math.round(t.damage)}`);
+    if (t.pierce + t.extraPierce > 0) infoLines.push(`Pierce: ${t.pierce + t.extraPierce}`);
+    if (t.armorPen > 0) infoLines.push(`Armor pen: ${t.armorPen}`);
+    if (t.projectilesPerShot > 1) infoLines.push(`Targets/shot: ${t.projectilesPerShot}`);
+    if (t.type === 5) infoLines.push(`Slow: x${t.slowFactor.toFixed(2)} for ${(t.slowDuration / 1000).toFixed(1)}s`);
+    infoLines.push(`Range: ${Math.round(t.range)}`);
+    infoLines.push(`Fire rate: ${Math.round(t.fireRate)}ms`);
+    infoLines.push(`Special: ${special.name} (${t.specialLevel}/${special.max})`);
+    infoLines.push(`Upgrade cost: $${t.upgradeCost}`);
+
     info.innerHTML =
-        `<b>${def.label} Tower</b><br>` +
-        `Level: ${t.level}<br>` +
-        `Damage: ${Math.round(t.damage)}<br>` +
-        `Range: ${Math.round(t.range)}<br>` +
-        `Fire rate: ${Math.round(t.fireRate)}ms<br>` +
-        `Upgrade cost: $${t.upgradeCost}`;
+        infoLines.join('<br>');
 
     const canAfford = gameState.gold >= t.upgradeCost;
     document.getElementById('fireBtn').disabled   = !canAfford;
     document.getElementById('damageBtn').disabled = !canAfford;
     document.getElementById('rangeBtn').disabled  = !canAfford;
+    specialBtn.disabled = !canAfford || !canApplySpecialUpgrade(t);
+    specialBtn.textContent = `${special.name} (${t.specialLevel}/${special.max})`;
+    specialBtn.title = special.desc;
 }
 
 // ================= UPGRADE KNOPPEN =================
 function doUpgrade(type) {
     const t = gameState.selectedTower;
     if (!t || gameState.gold < t.upgradeCost) return;
+    if (type === 'special' && !canApplySpecialUpgrade(t)) return;
 
     gameState.gold -= t.upgradeCost;
     t.level++;
     t.upgradeCost = Math.floor(t.upgradeCost * 1.5);
 
-    if (type === 'fire')   t.fireRate  *= 0.9;
-    if (type === 'damage') t.damage    *= 1.4;
-    if (type === 'range')  t.range     += 20;
+    if (type === 'special') {
+        applySpecialUpgrade(t);
+        return;
+    }
+
+    if (type === 'fire') {
+        const fireMultiplier = t.type === 3 ? 0.82 : 0.9;
+        t.fireRate = Math.max(120, Math.round(t.fireRate * fireMultiplier));
+    }
+    if (type === 'damage') {
+        t.damage = Math.round(t.damage * 1.4);
+        // Sniper damage upgrades also increase penetration.
+        if (t.type === 3) t.pierce += 1;
+    }
+    if (type === 'range')  t.range = Math.round(t.range + 20);
 }
 
 document.getElementById('fireBtn').onclick   = () => doUpgrade('fire');
 document.getElementById('damageBtn').onclick = () => doUpgrade('damage');
 document.getElementById('rangeBtn').onclick  = () => doUpgrade('range');
+document.getElementById('specialBtn').onclick  = () => doUpgrade('special');
 
 // ================= SELL KNOP =================
 document.getElementById('sellBtn').onclick = () => {
@@ -982,7 +1207,10 @@ function loop(time = 0) {
             ctx.fillStyle = d.color || 'yellow';
             ctx.font = 'bold 13px Arial';
             ctx.textAlign = 'center';
+            ctx.shadowColor = 'rgba(0,0,0,0.45)';
+            ctx.shadowBlur = 4;
             ctx.fillText(d.text, d.x, d.y);
+            ctx.shadowBlur = 0;
             d.y   -= 0.6;
             d.life--;
         }
@@ -1047,7 +1275,7 @@ canvas.onclick = (e) => {
 };
 
 // ================= TOREN SELECTIE KNOPPEN =================
-for (let i = 1; i <= 6; i++) {
+for (let i = 1; i <= 8; i++) {
     document.getElementById(`tower${i}`).onclick = () => {
         gameState.selectedTowerType = i;
     };
