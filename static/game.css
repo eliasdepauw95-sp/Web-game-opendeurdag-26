@@ -52,6 +52,11 @@ canvas {
     font-size: 14px;
 }
 
+#lives {
+    color: #ff6b81;
+    letter-spacing: 1px;
+}
+
 /* ================= TOWER BUTTONS ================= */
 .tower-selection {
     display: flex;
@@ -93,6 +98,7 @@ canvas {
 .t3 { background: #27ae60; }
 .t4 { background: #d4ac0d; }
 .t5 { background: #8e44ad; }
+.t6 { background: #0f9fa8; }
 
 .start-btn {
     padding: 8px 14px;
@@ -108,6 +114,16 @@ canvas {
 .start-btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+}
+
+.auto-btn {
+    background: #576574;
+    color: white;
+}
+
+.auto-btn.active {
+    background: #2ecc71;
+    color: #07270f;
 }
 
 /* ================= ENEMY LEGEND ================= */
