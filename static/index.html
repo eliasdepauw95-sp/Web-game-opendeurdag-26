@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tower Defense</title>
+    <link rel="stylesheet" href="game.css">
+</head>
+<body>
+
+<div class="game-container">
+
+    <!-- UI TOP BAR -->
+    <div class="ui">
+        <div class="stats">
+            <span>Gold: $<span id="gold">100</span></span>
+            <span>Lives: <span id="lives">20</span></span>
+            <span>Wave: <span id="wave">1</span></span>
+            <span>Score: <span id="score">0</span></span>
+        </div>
+
+        <div class="tower-selection">
+            <button id="tower1" class="tower-btn t1" data-cost="50">Basic<br><small>$50</small></button>
+            <button id="tower2" class="tower-btn t2" data-cost="80">Heavy<br><small>$80</small></button>
+            <button id="tower3" class="tower-btn t3" data-cost="100">Sniper<br><small>$150</small></button>
+            <button id="tower4" class="tower-btn t4" data-cost="60">Rapid<br><small>$60</small></button>
+            <button id="tower5" class="tower-btn t5" data-cost="90">Freeze<br><small>$90</small></button>
+            <button id="startWave" class="start-btn">Start Wave</button>
+        </div>
+    </div>
+
+    <!-- CANVAS -->
+    <canvas id="gameCanvas" width="1000" height="600"></canvas>
+
+    <!-- ENEMY LEGEND -->
+    <div class="legend">
+        <div class="legend-title">Enemies</div>
+        <div class="legend-item"><span class="dot" style="background:#e74c3c"></span>Basic</div>
+        <div class="legend-item"><span class="dot" style="background:#f1c40f"></span>Fast</div>
+        <div class="legend-item"><span class="dot" style="background:#8e44ad"></span>Tank</div>
+        <div class="legend-item"><span class="dot" style="background:#95a5a6"></span>Armored</div>
+    </div>
+
+    <!-- UPGRADE PANEL -->
+    <div id="upgradePanel" class="upgrade-panel">
+        <h3>Upgrade Tower</h3>
+        <div id="towerInfo" class="tower-info"></div>
+        <div class="upgrade-buttons">
+            <button id="fireBtn">🔥 Fire Rate</button>
+            <button id="damageBtn">💥 Damage</button>
+            <button id="rangeBtn">🎯 Range</button>
+        </div>
+        <button id="sellBtn" class="sell-btn">💰 Sell Tower</button>
+    </div>
+
+    <!-- GAME OVER -->
+    <div class="game-over" id="gameOver">
+        <h2>Game Over</h2>
+        <p>Score: <span id="finalScore">0</span></p>
+        <button onclick="location.reload()">Restart</button>
+    </div>
+
+</div>
+
+<script src="game.js"></script>
+</body>
+</html>

@@ -1,0 +1,242 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial;
+    background: linear-gradient(135deg, #1e3c72, #2a5298);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+/* ================= CONTAINER ================= */
+.game-container {
+    position: relative;
+}
+
+/* ================= CANVAS ================= */
+canvas {
+    border: 3px solid white;
+    border-radius: 10px;
+    background: linear-gradient(#87CEEB, #98FB98);
+    cursor: crosshair;
+    display: block;
+    
+}
+
+/* ================= TOP UI ================= */
+.ui {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    right: 10px;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    background: rgba(0,0,0,0.75);
+    padding: 8px 12px;
+    border-radius: 10px;
+    color: white;
+    z-index: 10;
+}
+
+.stats span {
+    margin-right: 12px;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+/* ================= TOWER BUTTONS ================= */
+.tower-selection {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+
+.tower-btn {
+    padding: 6px 10px;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 12px;
+    text-align: center;
+    line-height: 1.3;
+    color: white;
+    transition: transform 0.1s;
+}
+
+.tower-btn:hover {
+    transform: scale(1.07);
+}
+
+.tower-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.tower-btn.selected {
+    border-color: white;
+    box-shadow: 0 0 8px white;
+}
+
+/* Tower kleur per type */
+.t1 { background: #2980b9; }
+.t2 { background: #c0392b; }
+.t3 { background: #27ae60; }
+.t4 { background: #d4ac0d; }
+.t5 { background: #8e44ad; }
+
+.start-btn {
+    padding: 8px 14px;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    background: #feca57;
+    color: black;
+    font-size: 13px;
+}
+
+.start-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ================= ENEMY LEGEND ================= */
+.legend {
+    position: absolute;
+    left: 10px;
+    bottom: 10px;
+    background: rgba(0,0,0,0.75);
+    padding: 10px 14px;
+    border-radius: 10px;
+    color: white;
+    font-size: 12px;
+}
+
+.legend-title {
+    font-weight: bold;
+    margin-bottom: 6px;
+    font-size: 13px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 4px;
+}
+
+.dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+/* ================= UPGRADE PANEL ================= */
+.upgrade-panel {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+
+    width: 220px;
+    background: rgba(0,0,0,0.85);
+    padding: 15px;
+    border-radius: 10px;
+    color: white;
+
+    display: none;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.tower-info {
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.upgrade-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.upgrade-buttons button {
+    padding: 8px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    background: #4ecdc4;
+    color: black;
+    font-size: 13px;
+}
+
+.upgrade-buttons button:hover {
+    background: #38b2ac;
+}
+
+.upgrade-buttons button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.sell-btn {
+    background: #ff4757;
+    color: white;
+    padding: 10px;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.sell-btn:hover {
+    background: #e84118;
+}
+
+/* ================= GAME OVER ================= */
+.game-over {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    background: rgba(0,0,0,0.92);
+    padding: 40px;
+    border-radius: 12px;
+    text-align: center;
+    color: white;
+    display: none;
+    z-index: 20;
+}
+
+.game-over h2 {
+    font-size: 32px;
+    margin-bottom: 10px;
+}
+
+.game-over p {
+    font-size: 18px;
+    margin-bottom: 20px;
+}
+
+.game-over button {
+    padding: 12px 28px;
+    background: #feca57;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 16px;
+}
