@@ -9,7 +9,7 @@ let lastTime = 0;
 const TOWER_DEFS = {
 1: { color: '#00BFFF', range: 120, damage: 15, fireRate: 500,  cost: 50,  label: 'Basic'  },
 2: { color: '#FF4500', range: 170, damage: 50, fireRate: 1500, cost: 80,  label: 'Heavy'  },
-3: { color: '#00FF7F', range: 500, damage: 200, fireRate: 2000, cost: 150, label: 'Sniper' },
+3: { color: '#00FF7F', range: 400, damage: 150, fireRate: 2000, cost: 150, label: 'Sniper' },
 4: { color: '#FFD700', range: 100, damage: 10,  fireRate: 200,  cost: 60,  label: 'Rapid'  },
 5: { color: '#BF5FFF', range: 140, damage: 10, fireRate: 1000, cost: 90,  label: 'Freeze'   },
 };
@@ -398,7 +398,7 @@ function doUpgrade(type) {
     t.level++;
     t.upgradeCost = Math.floor(t.upgradeCost * 1.5);
 
-    if (type === 'fire')   t.fireRate  *= 0.85;
+    if (type === 'fire')   t.fireRate  *= 0.9;
     if (type === 'damage') t.damage    *= 1.4;
     if (type === 'range')  t.range     += 20;
 }
@@ -412,7 +412,7 @@ document.getElementById('sellBtn').onclick = () => {
     const t = gameState.selectedTower;
     if (!t) return;
 
-    const refund = Math.floor(t.upgradeCost / 2);
+    const refund = Math.floor(t.upgradeCost / 1.5) + Math.floor(TOWER_DEFS[t.type].cost / 2);
     gameState.gold += refund;
 
     gameState.towers = gameState.towers.filter(tower => tower !== t);
