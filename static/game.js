@@ -9,14 +9,14 @@ let autoWaveTimeout = null;
 // ================= TOWER DEFINITIES =================
 // type: { color, range, damage, fireRate(ms), cost, name }
 const TOWER_DEFS = {
-1: { color: '#00BFFF', range: 120, damage: 15, fireRate: 500,  cost: 50,  label: 'Basic'  },
-2: { color: '#FF4500', range: 170, damage: 50, fireRate: 1500, cost: 80,  label: 'Heavy'  },
-3: { color: '#00FF7F', range: 400, damage: 150, fireRate: 3000, cost: 150, label: 'Sniper', pierce: 2 },
-4: { color: '#FFD700', range: 100, damage: 10,  fireRate: 200,  cost: 60,  label: 'Rapid'  },
-5: { color: '#BF5FFF', range: 140, damage: 10, fireRate: 1000, cost: 90,  label: 'Freeze'   },
-6: { color: '#00CED1', range: 150, damage: 10, fireRate: 1500, cost: 130, label: 'Pulse', aoe: true },
-7: { color: '#FF7F50', range: 210, damage: 36, fireRate: 1200, cost: 170, label: 'Launcher', pierce: 1, armorPen: 2 },
-8: { color: '#64E6FF', range: 180, damage: 24, fireRate: 700, cost: 190, label: 'Tesla', armorPen: 3 },
+1: { color: '#00BFFF', range: 100,  damage: 15,  fireRate: 500,  cost: 50,  label: 'Basic'  },
+2: { color: '#FF4500', range: 140, damage: 50,  fireRate: 1500, cost: 80,  label: 'Heavy'  },
+3: { color: '#00FF7F', range: 240, damage: 100, fireRate: 3000, cost: 150, label: 'Sniper', pierce: 2 },
+4: { color: '#FFD700', range: 80,  damage: 8,   fireRate: 250,  cost: 70,  label: 'Rapid'  },
+5: { color: '#BF5FFF', range: 80,  damage: 12,  fireRate: 1000, cost: 100, label: 'Freeze', },
+6: { color: '#00CED1', range: 120, damage: 12,  fireRate: 1500, cost: 130, label: 'Pulse', aoe: true },
+7: { color: '#FF7F50', range: 170, damage: 36,  fireRate: 1200, cost: 170, label: 'Launcher', pierce: 1, armorPen: 2 },
+8: { color: '#64E6FF', range: 150, damage: 24,  fireRate: 700,  cost: 190, label: 'Tesla', armorPen: 5, pierce: 1 },
 };
 
 const TOWER_SPECIALS = {
@@ -184,7 +184,7 @@ class Tower {
         this.projectilesPerShot = 1;
         this.armorPen = def.armorPen || 0;
         this.slowDuration = 1500;
-        this.slowFactor = 0.25;
+        this.slowFactor = 0.35;
         this.specialLevel = 0;
         this.level      = 1;
         this.upgradeCost = def.cost;
@@ -263,13 +263,13 @@ class Tower {
         });
 
         for (let enemy of enemiesInRange) {
-            const actual = enemy.takeDamage(this.damage);
+            const actual = enemy.takeDamage(this.damage, this.armorPen);
             damageTexts.push({
                 x: enemy.x,
                 y: enemy.y - 10,
                 text: actual,
                 life: 40,
-                color: this.color
+                color: this.color,
             });
         }
     }
@@ -932,7 +932,7 @@ function buildWaveQueue(wave) {
             const roll = Math.random();
             const fastChance    = Math.min(0.35, wave * 0.06);
             const tankChance    = wave >= 3 ? Math.min(0.25, (wave - 2) * 0.06) : 0;
-            const armorChance   = wave >= 4 ? Math.min(0.20, (wave - 3) * 0.05) : 0;
+            const armorChance   = wave >= 4 ? Math.min(0.20, (wave - 3) * 0.1) : 0;
 
             if (roll < armorChance) {
                 type = 'armored';
@@ -1113,7 +1113,7 @@ function doUpgrade(type) {
     }
 
     if (type === 'fire') {
-        const fireMultiplier = t.type === 3 ? 0.82 : 0.9;
+        const fireMultiplier = t.type === 3 ? 0.82 : 0.92;
         t.fireRate = Math.max(120, Math.round(t.fireRate * fireMultiplier));
     }
     if (type === 'damage') {
