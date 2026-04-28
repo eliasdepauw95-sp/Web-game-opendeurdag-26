@@ -10,12 +10,180 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    min-height: 100vh;
+    padding: 8px;
 }
 
 /* ================= CONTAINER ================= */
 .game-container {
     position: relative;
+    width: min(96vw, calc((92vh - 16px) * (5 / 3)), 1400px);
+}
+
+.start-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    background:
+        linear-gradient(rgba(6, 14, 26, 0.64), rgba(6, 14, 26, 0.78)),
+        radial-gradient(circle at 18% 25%, rgba(116, 206, 255, 0.2), transparent 38%),
+        radial-gradient(circle at 80% 20%, rgba(132, 255, 172, 0.18), transparent 42%),
+        linear-gradient(145deg, #0a1d35, #102d4d 45%, #173d63);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 22px;
+}
+
+.start-panel {
+    width: min(920px, 96vw);
+    background: rgba(16, 30, 48, 0.9);
+    border: 1px solid rgba(189, 226, 255, 0.34);
+    border-radius: 14px;
+    padding: 24px;
+    color: #ecf6ff;
+    box-shadow: 0 14px 36px rgba(0,0,0,0.36);
+}
+
+.ptsd-title {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-bottom: 10px;
+}
+
+.ptsd-acronym {
+    font-size: 52px;
+    font-weight: 900;
+    letter-spacing: 6px;
+    line-height: 1;
+    background: linear-gradient(135deg, #ffd700, #ff8c00, #ff4500);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: none;
+    filter: drop-shadow(0 2px 8px rgba(255, 160, 0, 0.45));
+}
+
+.ptsd-full {
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(220, 237, 255, 0.7);
+}
+
+.start-panel h1 {
+    font-size: 34px;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+}
+
+.start-panel h2 {
+    font-size: 30px;
+    margin-bottom: 10px;
+}
+
+/* school building variant */
+.cover-building.school {
+    background: linear-gradient(180deg, #5c4a1e 0%, #3a2e0f 100%);
+    border-top: 3px solid #a07840;
+}
+.cover-building.school::before {
+    content: '';
+    position: absolute;
+    top: -18px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 30px solid transparent;
+    border-right: 30px solid transparent;
+    border-bottom: 20px solid #3a2e0f;
+}
+.cover-building.school::after {
+    background: repeating-linear-gradient(
+        180deg,
+        transparent 0px, transparent 14px,
+        rgba(255,200,80,0.12) 14px, rgba(255,200,80,0.12) 15px
+    );
+}
+
+.start-sub {
+    font-size: 14px;
+    color: rgba(220, 237, 255, 0.85);
+    margin-bottom: 18px;
+}
+
+.start-actions {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.play-btn {
+    background: linear-gradient(135deg, #f7d86d, #ffac43);
+    color: #2d1e02;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 18px;
+    font-weight: bold;
+    font-size: 16px;
+    cursor: pointer;
+    margin-bottom: 14px;
+}
+
+.guide-btn {
+    background: linear-gradient(135deg, #c5d4e4, #8aa2bc);
+    color: #102538;
+}
+
+.guide-panel .play-btn {
+    margin-top: 10px;
+    margin-bottom: 0;
+}
+
+.guide-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.guide-block {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.14);
+    border-radius: 10px;
+    padding: 12px;
+}
+
+.guide-block h3 {
+    margin-bottom: 8px;
+    font-size: 16px;
+}
+
+.guide-block p {
+    font-size: 12px;
+    line-height: 1.5;
+    margin-bottom: 4px;
+}
+
+/* ================= START COVER ================= */
+.start-cover {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+}
+
+#coverCanvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.start-panel {
+    position: relative;
+    z-index: 1;
 }
 
 /* ================= CANVAS ================= */
@@ -25,7 +193,9 @@ canvas {
     background: linear-gradient(#87CEEB, #98FB98);
     cursor: crosshair;
     display: block;
-    
+    width: 100%;
+    aspect-ratio: 5 / 3;
+    height: auto;
 }
 
 /* ================= TOP UI ================= */
@@ -142,6 +312,9 @@ canvas {
 .t6 { background: linear-gradient(135deg, #5de6ec, #0a7f88); }
 .t7 { background: linear-gradient(135deg, #ff9d66, #b84f1f); }
 .t8 { background: linear-gradient(135deg, #9ef7ff, #2f8fe0); }
+.t9 { background: linear-gradient(135deg, #b9e5ff, #2a68c6); }
+.t10 { background: linear-gradient(135deg, #9dff8d, #2f8f2a); }
+.t11 { background: linear-gradient(135deg, #d4d9e1, #637080); }
 
 .start-btn {
     padding: 8px 12px;
@@ -184,6 +357,14 @@ canvas {
     .wave-controls {
         justify-content: flex-end;
     }
+
+    .guide-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .start-panel h1 {
+        font-size: 28px;
+    }
 }
 
 /* ================= ENEMY LEGEND ================= */
@@ -196,6 +377,42 @@ canvas {
     border-radius: 10px;
     color: white;
     font-size: 12px;
+}
+
+/* ================= ABILITIES ================= */
+.ability-bar {
+    position: absolute;
+    left: 50%;
+    bottom: 10px;
+    transform: translateX(-50%);
+    z-index: 12;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.ability-btn {
+    min-width: 210px;
+    padding: 10px 16px;
+    border: 2px solid #a6f0ff;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #d5fbff, #72d9ff);
+    color: #093749;
+    font-weight: bold;
+    font-size: 13px;
+    box-shadow: 0 5px 18px rgba(0, 0, 0, 0.32);
+    cursor: pointer;
+}
+
+.ability-btn:hover:enabled {
+    filter: brightness(1.05) saturate(1.1);
+}
+
+.ability-btn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
 }
 
 .legend-title {

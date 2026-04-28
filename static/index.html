@@ -3,13 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tower Defense</title>
+    <title>PTSD – Protect the School Demo</title>
     <link rel="stylesheet" href="game.css">
 </head>
 <body>
 
-<div class="game-container">
+<div id="startScreen" class="start-screen">
+    <div class="start-cover" aria-hidden="true">
+        <canvas id="coverCanvas"></canvas>
+    </div>
+    <div id="startMenu" class="start-panel">
+        <div class="ptsd-title">
+            <span class="ptsd-acronym">PTSD</span>
+            <span class="ptsd-full">Protect the School Demo</span>
+        </div>
+        <p class="start-sub">Waves are coming. The school won't defend itself.</p>
+        <div class="start-actions">
+            <button id="playBtn" class="play-btn">Play</button>
+            <button id="guideBtn" class="play-btn guide-btn">Guide</button>
+        </div>
+    </div>
 
+    <div id="guideScreen" class="start-panel guide-panel" style="display:none;">
+        <h2>Guide</h2>
+        <div class="guide-grid">
+            <div class="guide-block">
+                <h3>Towers</h3>
+                <p><b>Radar</b>: reveals stealth in range so other towers can target them.</p>
+                <p><b>Bank</b>: no attack, generates gold over time.</p>
+                <p><b>Tesla</b>: chain damage plus Tesla Storm ability when you own 2+.</p>
+                <p><b>Launcher</b>: burst damage and unlocks Orbital Barrage at 2+.</p>
+                <p><b>Tempest</b>: creates pulse zones that control clustered enemies.</p>
+            </div>
+            <div class="guide-block">
+                <h3>Enemies</h3>
+                <p><b>Basic</b>: balanced stats.</p>
+                <p><b>Fast</b>: low HP, high speed.</p>
+                <p><b>Tank</b>: high HP, very slow.</p>
+                <p><b>Armored</b>: high armor, needs penetration.</p>
+                <p><b>Stealth Bomber</b>: visible, but only targetable in Radar range.</p>
+                <p><b>Boss</b>: appears every 5 waves.</p>
+            </div>
+        </div>
+        <button id="backBtn" class="play-btn guide-btn">Back</button>
+    </div>
+</div>
+
+<div class="game-container">
     <!-- UI TOP BAR -->
     <div class="ui">
         <div class="ui-head">
@@ -34,24 +74,35 @@
 
             <div class="wave-controls">
                 <button id="startWave" class="start-btn">Start Wave</button>
+                <button id="pauseBtn" class="start-btn">Pause</button>
                 <button id="autoStartToggle" class="start-btn auto-btn">Auto: OFF</button>
             </div>
         </div>
 
         <div class="tower-selection">
-            <button id="tower1" class="tower-btn t1" data-cost="50">Basic<br><small>$50</small></button>
+            <button id="tower1" class="tower-btn t1" data-cost="55">Basic<br><small>$55</small></button>
             <button id="tower2" class="tower-btn t2" data-cost="80">Heavy<br><small>$80</small></button>
-            <button id="tower3" class="tower-btn t3" data-cost="150">Sniper<br><small>$150</small></button>
-            <button id="tower4" class="tower-btn t4" data-cost="60">Rapid<br><small>$60</small></button>
-            <button id="tower5" class="tower-btn t5" data-cost="90">Freeze<br><small>$90</small></button>
-            <button id="tower6" class="tower-btn t6" data-cost="130">Pulse<br><small>$130</small></button>
-            <button id="tower7" class="tower-btn t7" data-cost="170">Launcher<br><small>$170</small></button>
-            <button id="tower8" class="tower-btn t8" data-cost="190">Tesla<br><small>$190</small></button>
+            <button id="tower3" class="tower-btn t3" data-cost="175">Sniper<br><small>$175</small></button>
+            <button id="tower4" class="tower-btn t4" data-cost="70">Rapid<br><small>$70</small></button>
+            <button id="tower5" class="tower-btn t5" data-cost="100">Freeze<br><small>$100</small></button>
+            <button id="tower6" class="tower-btn t6" data-cost="100">Pulse<br><small>$100</small></button>
+            <button id="tower7" class="tower-btn t7" data-cost="150">Launcher<br><small>$150</small></button>
+            <button id="tower8" class="tower-btn t8" data-cost="250">Tesla<br><small>$250</small></button>
+            <button id="tower9" class="tower-btn t9" data-cost="240">Tempest<br><small>$240</small></button>
+            <button id="tower10" class="tower-btn t10" data-cost="260">Bank<br><small>$260</small></button>
+            <button id="tower11" class="tower-btn t11" data-cost="150">Radar<br><small>$150</small></button>
         </div>
     </div>
 
     <!-- CANVAS -->
     <canvas id="gameCanvas" width="1000" height="600"></canvas>
+
+    <!-- TESLA ABILITY -->
+    <div class="ability-bar">
+        <button id="teslaAbilityBtn" class="ability-btn" disabled>Tesla Storm (Need 2 Tesla)</button>
+        <button id="bankAbilityBtn" class="ability-btn" disabled>Gold Rain (Need 2 Bank)</button>
+        <button id="barrageAbilityBtn" class="ability-btn" disabled>Orbital Barrage (Need 2 Launcher)</button>
+    </div>
 
     <!-- ENEMY LEGEND -->
     <div class="legend">
@@ -85,6 +136,762 @@
 
 </div>
 
+<script>
+// ═══════════════════════════════════════════
+//  PTSD  –  2.5D animated cover scene
+// ═══════════════════════════════════════════
+(function () {
+    const cv  = document.getElementById('coverCanvas');
+    const ctx = cv.getContext('2d');
+    let W, H, t = 0;
+
+    function resize() {
+        W = cv.width  = window.innerWidth;
+        H = cv.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    // ── helpers ──────────────────────────────
+    const TAU = Math.PI * 2;
+    function lerp(a, b, k) { return a + (b - a) * k; }
+    function ease(x) { return x < 0.5 ? 2*x*x : 1-(-2*x+2)**2/2; }
+
+    // ── isometric helpers ─────────────────────
+    // Convert tile (tx,ty,tz) → screen (sx,sy)
+    // tz = height offset
+    const ISO_SCALE = 1.0;
+    function iso(tx, ty, tz, ox, oy) {
+        const tileW = 64 * ISO_SCALE;
+        const tileH = 32 * ISO_SCALE;
+        const sx = ox + (tx - ty) * (tileW / 2);
+        const sy = oy + (tx + ty) * (tileH / 2) - tz;
+        return { x: sx, y: sy };
+    }
+
+    // ── SKY layers ────────────────────────────
+    function drawSky() {
+        const grad = ctx.createLinearGradient(0, 0, 0, H * 0.62);
+        grad.addColorStop(0,    '#04090f');
+        grad.addColorStop(0.35, '#0a1e3a');
+        grad.addColorStop(0.7,  '#112d52');
+        grad.addColorStop(1,    '#1a4060');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, W, H * 0.62);
+    }
+
+    // stars
+    const stars = Array.from({length:120}, () => ({
+        x: Math.random(), y: Math.random() * 0.55,
+        r: Math.random() * 1.4 + 0.3,
+        phase: Math.random() * TAU,
+        speed: 0.4 + Math.random() * 1.2
+    }));
+    function drawStars() {
+        for (const s of stars) {
+            const a = 0.4 + 0.6 * Math.sin(s.phase + t * s.speed * 0.015);
+            ctx.globalAlpha = a;
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            ctx.arc(s.x * W, s.y * H, s.r, 0, TAU);
+            ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+    }
+
+    // moon
+    function drawMoon() {
+        const mx = W * 0.82, my = H * 0.12, mr = 36;
+        const glow = ctx.createRadialGradient(mx, my, mr*0.4, mx, my, mr*3);
+        glow.addColorStop(0, 'rgba(180,220,255,0.18)');
+        glow.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = glow;
+        ctx.beginPath(); ctx.arc(mx, my, mr*3, 0, TAU); ctx.fill();
+
+        ctx.fillStyle = '#d6eeff';
+        ctx.beginPath(); ctx.arc(mx, my, mr, 0, TAU); ctx.fill();
+        ctx.fillStyle = '#b8d8f0';
+        ctx.beginPath(); ctx.arc(mx+10, my-6, mr*0.75, 0, TAU); ctx.fill();
+        // craters
+        ctx.fillStyle = 'rgba(100,160,200,0.35)';
+        [[mx-10,my+8,5],[mx+8,my+14,3],[mx-16,my-4,4]].forEach(([cx,cy,cr]) => {
+            ctx.beginPath(); ctx.arc(cx,cy,cr,0,TAU); ctx.fill();
+        });
+    }
+
+    // ── far hills (parallax layer 1) ──────────
+    function drawHillsFar(px) {
+        ctx.fillStyle = '#0d2236';
+        ctx.beginPath();
+        ctx.moveTo(0, H * 0.62);
+        const pts = [
+            [0,0.54],[0.08,0.42],[0.16,0.50],[0.25,0.36],
+            [0.35,0.46],[0.45,0.30],[0.55,0.44],[0.65,0.34],
+            [0.75,0.48],[0.85,0.38],[0.95,0.50],[1,0.54],[1,0.62]
+        ];
+        for (const [rx,ry] of pts) ctx.lineTo(rx*W + px*0.18, ry*H);
+        ctx.closePath(); ctx.fill();
+    }
+
+    // ── mid hills (parallax layer 2) ─────────
+    function drawHillsMid(px) {
+        ctx.fillStyle = '#112e1e';
+        ctx.beginPath();
+        ctx.moveTo(0, H * 0.65);
+        const pts = [
+            [0,0.60],[0.06,0.55],[0.14,0.62],[0.22,0.52],
+            [0.32,0.60],[0.42,0.50],[0.52,0.58],[0.62,0.52],
+            [0.72,0.60],[0.82,0.54],[0.92,0.61],[1,0.58],[1,0.65]
+        ];
+        for (const [rx,ry] of pts) ctx.lineTo(rx*W + px*0.32, ry*H);
+        ctx.closePath(); ctx.fill();
+    }
+
+    // ── ground plane ──────────────────────────
+    function drawGround() {
+        const gy = H * 0.62;
+        const grad = ctx.createLinearGradient(0, gy, 0, H);
+        grad.addColorStop(0, '#1a3d28');
+        grad.addColorStop(0.4,'#163320');
+        grad.addColorStop(1, '#0e2418');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, gy, W, H - gy);
+
+        // subtle grid lines in perspective
+        ctx.strokeStyle = 'rgba(40,120,60,0.18)';
+        ctx.lineWidth = 1;
+        const horizon = gy;
+        const vp = { x: W/2, y: horizon };
+        for (let i = -12; i <= 12; i++) {
+            const bx = W/2 + i * (W/14);
+            ctx.beginPath(); ctx.moveTo(vp.x, vp.y); ctx.lineTo(bx, H); ctx.stroke();
+        }
+        for (let row = 1; row <= 8; row++) {
+            const fy = horizon + (H - horizon) * (row / 8);
+            ctx.beginPath(); ctx.moveTo(0, fy); ctx.lineTo(W, fy); ctx.stroke();
+        }
+    }
+
+    // ── PATH ──────────────────────────────────
+    function drawPath() {
+        const gy = H * 0.62;
+        // dirt road going into distance
+        ctx.fillStyle = '#c07030';
+        ctx.beginPath();
+        ctx.moveTo(W*0.44, gy + 1);
+        ctx.lineTo(W*0.56, gy + 1);
+        ctx.lineTo(W*0.8,  H);
+        ctx.lineTo(W*0.2,  H);
+        ctx.closePath(); ctx.fill();
+
+        // dashes
+        ctx.strokeStyle = 'rgba(255,210,100,0.55)';
+        ctx.setLineDash([14, 14]);
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.moveTo(W*0.5, gy + 2);
+        ctx.lineTo(W*0.5, H);
+        ctx.stroke();
+        ctx.setLineDash([]);
+    }
+
+    // ═══ ISO TOWER DRAWINGS ═══════════════════
+
+    // Basic tower – blue dome cannon
+    function drawTowerBasic(sx, sy, scale, pulse) {
+        const s = scale;
+        // base platform (iso top face)
+        ctx.fillStyle = '#3f2a14';
+        ctx.beginPath();
+        ctx.moveTo(sx,      sy - 14*s);
+        ctx.lineTo(sx+22*s, sy - 7*s);
+        ctx.lineTo(sx,      sy);
+        ctx.lineTo(sx-22*s, sy - 7*s);
+        ctx.closePath(); ctx.fill();
+        // base side face left
+        ctx.fillStyle = '#2a1c0d';
+        ctx.beginPath();
+        ctx.moveTo(sx-22*s, sy-7*s); ctx.lineTo(sx, sy);
+        ctx.lineTo(sx, sy+10*s); ctx.lineTo(sx-22*s, sy+3*s);
+        ctx.closePath(); ctx.fill();
+        // base side face right
+        ctx.fillStyle = '#321f0f';
+        ctx.beginPath();
+        ctx.moveTo(sx+22*s, sy-7*s); ctx.lineTo(sx, sy);
+        ctx.lineTo(sx, sy+10*s); ctx.lineTo(sx+22*s, sy+3*s);
+        ctx.closePath(); ctx.fill();
+
+        // dome
+        const domeGrad = ctx.createRadialGradient(sx-4*s, sy-22*s, 2, sx, sy-18*s, 14*s);
+        domeGrad.addColorStop(0, '#7dd8ff'); domeGrad.addColorStop(1, '#1b5c8a');
+        ctx.fillStyle = domeGrad;
+        ctx.beginPath(); ctx.arc(sx, sy-18*s, 14*s, 0, TAU); ctx.fill();
+        ctx.strokeStyle = '#49b9ff'; ctx.lineWidth = 1.5*s;
+        ctx.beginPath(); ctx.arc(sx, sy-18*s, 10*s, 0.4, Math.PI-0.4); ctx.stroke();
+
+        // barrel pointing right-forward
+        ctx.save();
+        ctx.translate(sx, sy-18*s);
+        ctx.rotate(0.4);
+        ctx.fillStyle = '#1a2530';
+        ctx.fillRect(0, -3*s, 18*s, 6*s);
+        ctx.fillStyle = '#49b9ff';
+        ctx.fillRect(15*s, -2*s, 5*s, 4*s);
+        ctx.restore();
+
+        // glow
+        ctx.globalAlpha = 0.25 + 0.15*pulse;
+        const glowG = ctx.createRadialGradient(sx, sy-18*s, 2, sx, sy-18*s, 28*s);
+        glowG.addColorStop(0,'rgba(73,185,255,0.8)'); glowG.addColorStop(1,'rgba(0,0,0,0)');
+        ctx.fillStyle = glowG;
+        ctx.beginPath(); ctx.arc(sx, sy-18*s, 28*s, 0, TAU); ctx.fill();
+        ctx.globalAlpha = 1;
+    }
+
+    // Rapid tower – gold spinning rotor
+    function drawTowerRapid(sx, sy, scale, spin) {
+        const s = scale;
+        // base
+        ctx.fillStyle = '#5e4a0f';
+        ctx.beginPath();
+        ctx.moveTo(sx, sy-12*s); ctx.lineTo(sx+20*s, sy-6*s);
+        ctx.lineTo(sx, sy); ctx.lineTo(sx-20*s, sy-6*s); ctx.closePath(); ctx.fill();
+        ctx.fillStyle = '#3a2e08';
+        ctx.beginPath();
+        ctx.moveTo(sx-20*s, sy-6*s); ctx.lineTo(sx, sy);
+        ctx.lineTo(sx, sy+8*s); ctx.lineTo(sx-20*s, sy+2*s); ctx.closePath(); ctx.fill();
+        ctx.fillStyle = '#4a3a0a';
+        ctx.beginPath();
+        ctx.moveTo(sx+20*s, sy-6*s); ctx.lineTo(sx, sy);
+        ctx.lineTo(sx, sy+8*s); ctx.lineTo(sx+20*s, sy+2*s); ctx.closePath(); ctx.fill();
+
+        // drum body
+        ctx.fillStyle = '#d4ac0d';
+        ctx.beginPath(); ctx.arc(sx, sy-16*s, 11*s, 0, TAU); ctx.fill();
+        ctx.fillStyle = '#5e4a0f';
+        ctx.beginPath(); ctx.arc(sx, sy-16*s, 8*s, 0, TAU); ctx.fill();
+
+        // spinning blades
+        ctx.save(); ctx.translate(sx, sy-16*s); ctx.rotate(spin);
+        ctx.fillStyle = '#ffe066';
+        for (let i=0;i<4;i++) {
+            ctx.rotate(Math.PI/2);
+            ctx.fillRect(0,-2*s,13*s,4*s);
+        }
+        ctx.restore();
+
+        // double barrels
+        ctx.save(); ctx.translate(sx, sy-16*s); ctx.rotate(0.5);
+        ctx.fillStyle = '#1f1f1f';
+        ctx.fillRect(0,-5*s,14*s,3*s); ctx.fillRect(0,2*s,14*s,3*s);
+        ctx.fillStyle = '#ffe066';
+        ctx.fillRect(12*s,-5*s,4*s,3*s); ctx.fillRect(12*s,2*s,4*s,3*s);
+        ctx.restore();
+
+        ctx.globalAlpha = 0.2;
+        const gg = ctx.createRadialGradient(sx,sy-16*s,2,sx,sy-16*s,22*s);
+        gg.addColorStop(0,'rgba(255,224,50,0.7)'); gg.addColorStop(1,'rgba(0,0,0,0)');
+        ctx.fillStyle=gg; ctx.beginPath(); ctx.arc(sx,sy-16*s,22*s,0,TAU); ctx.fill();
+        ctx.globalAlpha=1;
+    }
+
+    // Tesla tower – coil emitter
+    function drawTowerTesla(sx, sy, scale, pulse) {
+        const s = scale;
+        ctx.fillStyle = '#103f56';
+        ctx.beginPath();
+        ctx.moveTo(sx, sy-12*s); ctx.lineTo(sx+20*s, sy-6*s);
+        ctx.lineTo(sx, sy); ctx.lineTo(sx-20*s, sy-6*s); ctx.closePath(); ctx.fill();
+        ctx.fillStyle = '#0a2a38';
+        ctx.beginPath();
+        ctx.moveTo(sx-20*s,sy-6*s); ctx.lineTo(sx,sy); ctx.lineTo(sx,sy+8*s); ctx.lineTo(sx-20*s,sy+2*s); ctx.closePath(); ctx.fill();
+        ctx.fillStyle = '#0e3448';
+        ctx.beginPath();
+        ctx.moveTo(sx+20*s,sy-6*s); ctx.lineTo(sx,sy); ctx.lineTo(sx,sy+8*s); ctx.lineTo(sx+20*s,sy+2*s); ctx.closePath(); ctx.fill();
+
+        // coil rings
+        ctx.strokeStyle = '#89eeff'; ctx.lineWidth = 2*s;
+        ctx.beginPath(); ctx.arc(sx, sy-18*s, 12*s, 0, TAU); ctx.stroke();
+        ctx.strokeStyle='rgba(80,200,220,0.5)'; ctx.lineWidth=1.5*s;
+        ctx.beginPath(); ctx.arc(sx, sy-18*s, 8*s, 0, TAU); ctx.stroke();
+
+        ctx.fillStyle = '#d6fbff';
+        ctx.beginPath(); ctx.arc(sx, sy-18*s, 4*s + pulse*2.5*s, 0, TAU); ctx.fill();
+
+        // node spikes
+        ctx.strokeStyle=`rgba(100,230,255,${0.4+pulse*0.5})`;
+        ctx.lineWidth = 2*s;
+        for (let i=0;i<4;i++) {
+            const a = i*(Math.PI/2) + pulse*0.3;
+            ctx.beginPath();
+            ctx.moveTo(sx+Math.cos(a)*8*s, sy-18*s+Math.sin(a)*8*s);
+            ctx.lineTo(sx+Math.cos(a)*16*s, sy-18*s+Math.sin(a)*16*s);
+            ctx.stroke();
+        }
+
+        ctx.globalAlpha=0.3+0.15*pulse;
+        const tg = ctx.createRadialGradient(sx,sy-18*s,2,sx,sy-18*s,30*s);
+        tg.addColorStop(0,'rgba(100,230,255,0.9)'); tg.addColorStop(1,'rgba(0,0,0,0)');
+        ctx.fillStyle=tg; ctx.beginPath(); ctx.arc(sx,sy-18*s,30*s,0,TAU); ctx.fill();
+        ctx.globalAlpha=1;
+    }
+
+    // Freeze tower – crystal
+    function drawTowerFreeze(sx, sy, scale, pulse) {
+        const s = scale;
+        ctx.fillStyle = '#33214f';
+        ctx.beginPath();
+        ctx.moveTo(sx, sy-10*s); ctx.lineTo(sx+18*s, sy-5*s);
+        ctx.lineTo(sx, sy); ctx.lineTo(sx-18*s, sy-5*s); ctx.closePath(); ctx.fill();
+        ctx.fillStyle='#22163a';
+        ctx.beginPath();
+        ctx.moveTo(sx-18*s,sy-5*s); ctx.lineTo(sx,sy); ctx.lineTo(sx,sy+7*s); ctx.lineTo(sx-18*s,sy+2*s); ctx.closePath(); ctx.fill();
+        ctx.fillStyle='#2a1c46';
+        ctx.beginPath();
+        ctx.moveTo(sx+18*s,sy-5*s); ctx.lineTo(sx,sy); ctx.lineTo(sx,sy+7*s); ctx.lineTo(sx+18*s,sy+2*s); ctx.closePath(); ctx.fill();
+
+        // crystal
+        ctx.fillStyle='#c8a0ff';
+        ctx.beginPath();
+        ctx.moveTo(sx, sy-28*s);
+        ctx.lineTo(sx+8*s, sy-16*s); ctx.lineTo(sx+4*s, sy-10*s);
+        ctx.lineTo(sx-4*s, sy-10*s); ctx.lineTo(sx-8*s, sy-16*s);
+        ctx.closePath(); ctx.fill();
+        ctx.strokeStyle='#e4d4ff'; ctx.lineWidth=1.2*s;
+        ctx.beginPath();
+        ctx.moveTo(sx, sy-26*s); ctx.lineTo(sx+5*s, sy-12*s); ctx.lineTo(sx-5*s, sy-12*s); ctx.closePath(); ctx.stroke();
+
+        ctx.globalAlpha=0.2+0.15*pulse;
+        const fg=ctx.createRadialGradient(sx,sy-18*s,2,sx,sy-18*s,24*s);
+        fg.addColorStop(0,'rgba(180,120,255,0.8)'); fg.addColorStop(1,'rgba(0,0,0,0)');
+        ctx.fillStyle=fg; ctx.beginPath(); ctx.arc(sx,sy-18*s,24*s,0,TAU); ctx.fill();
+        ctx.globalAlpha=1;
+    }
+
+    // School building (2.5D isometric)
+    function drawSchool(sx, sy, scale) {
+        const s = scale;
+        const tw = 44*s, th = 22*s, bh = 55*s;
+
+        // roof top face
+        ctx.fillStyle = '#8b4f26';
+        ctx.beginPath();
+        ctx.moveTo(sx,      sy-bh-th*0.5);
+        ctx.lineTo(sx+tw,   sy-bh);
+        ctx.lineTo(sx,      sy-bh+th*0.5);
+        ctx.lineTo(sx-tw,   sy-bh);
+        ctx.closePath(); ctx.fill();
+        ctx.strokeStyle='#b47e3f'; ctx.lineWidth=1.5;
+        ctx.beginPath();
+        ctx.moveTo(sx,sy-bh-th*0.5); ctx.lineTo(sx+tw,sy-bh);
+        ctx.lineTo(sx,sy-bh+th*0.5); ctx.lineTo(sx-tw,sy-bh);
+        ctx.closePath(); ctx.stroke();
+
+        // left wall
+        ctx.fillStyle = '#5f3c24';
+        ctx.beginPath();
+        ctx.moveTo(sx-tw, sy-bh); ctx.lineTo(sx, sy-bh+th*0.5);
+        ctx.lineTo(sx, sy+th*0.5); ctx.lineTo(sx-tw, sy);
+        ctx.closePath(); ctx.fill();
+
+        // right wall
+        ctx.fillStyle = '#7a5134';
+        ctx.beginPath();
+        ctx.moveTo(sx+tw, sy-bh); ctx.lineTo(sx, sy-bh+th*0.5);
+        ctx.lineTo(sx, sy+th*0.5); ctx.lineTo(sx+tw, sy);
+        ctx.closePath(); ctx.fill();
+
+        // left wing
+        const wingX = sx - tw - 10*s;
+        const wingTop = sy - bh + 6*s;
+        const wingH = 32*s;
+        ctx.fillStyle = '#6c3f2a';
+        ctx.beginPath();
+        ctx.moveTo(wingX, wingTop);
+        ctx.lineTo(wingX + 18*s, wingTop - 4*s);
+        ctx.lineTo(wingX + 18*s, wingTop + wingH - 4*s);
+        ctx.lineTo(wingX, wingTop + wingH);
+        ctx.closePath(); ctx.fill();
+        ctx.fillStyle = '#9b6a43';
+        ctx.beginPath();
+        ctx.moveTo(wingX, wingTop);
+        ctx.lineTo(wingX + 18*s, wingTop - 4*s);
+        ctx.lineTo(wingX + 18*s, wingTop);
+        ctx.closePath(); ctx.fill();
+
+        // wing windows
+        ctx.fillStyle = 'rgba(255,210,140,0.55)';
+        for (let row=0; row<3; row++) {
+            const wx = wingX + 4*s;
+            const wy = wingTop + 7*s + row * 10*s;
+            ctx.fillRect(wx, wy, 6*s, 8*s);
+        }
+
+        // center windows
+        ctx.fillStyle = 'rgba(255,214,150,0.65)';
+        for (let row=0; row<3; row++) {
+            for (let col=0; col<2; col++) {
+                const wx = sx - tw*0.7 + col*tw*0.44 + row*th*0.1;
+                const wy = sy - bh*0.72 + row*bh*0.23 - col*th*0.02;
+                ctx.fillRect(wx-4*s, wy-5*s, 8*s, 10*s);
+            }
+        }
+
+        // front entrance panel
+        ctx.fillStyle = '#4c2f1c';
+        ctx.beginPath();
+        ctx.moveTo(sx - 9*s, sy - bh*0.08);
+        ctx.lineTo(sx + 9*s, sy - bh*0.08);
+        ctx.lineTo(sx + 8*s, sy + 6*s);
+        ctx.lineTo(sx - 8*s, sy + 6*s);
+        ctx.closePath(); ctx.fill();
+
+        // sign post / school banner
+        ctx.fillStyle = '#f9d88c';
+        ctx.fillRect(sx - 22*s, sy - bh - th*0.5 - 18*s, 10*s, 16*s);
+        ctx.fillStyle = '#c43a26';
+        ctx.beginPath();
+        ctx.moveTo(sx - 12*s, sy - bh - th*0.5 - 18*s);
+        ctx.lineTo(sx - 2*s, sy - bh - th*0.5 - 10*s);
+        ctx.lineTo(sx - 12*s, sy - bh - th*0.5 - 2*s);
+        ctx.closePath(); ctx.fill();
+        ctx.fillStyle = '#ffffff';
+        ctx.font = `${6*s}px Arial`;
+        ctx.textAlign = 'center';
+        ctx.fillText('DON BOSCO', sx - 17*s, sy - bh - th*0.5 - 8*s);
+    }
+
+    // ═══ ENEMY DRAWINGS ═══════════════════════
+
+    function drawEnemyBasic(sx, sy, scale, bob) {
+        const s = scale, y = sy + bob;
+        // shadow
+        ctx.fillStyle='rgba(0,0,0,0.3)';
+        ctx.beginPath(); ctx.ellipse(sx, y+14*s, 10*s, 4*s, 0, 0, TAU); ctx.fill();
+
+        // body – soldier silhouette
+        ctx.fillStyle='#4f7340';
+        ctx.fillRect(sx-5*s, y-10*s, 10*s, 12*s);
+        ctx.fillStyle='#3a5a2f';
+        ctx.fillRect(sx-3*s, y-6*s, 6*s, 6*s); // vest
+
+        ctx.fillStyle='#6f8c57';
+        ctx.beginPath(); ctx.arc(sx, y-14*s, 5*s, 0, TAU); ctx.fill(); // helmet
+        ctx.fillStyle='rgba(180,220,255,0.5)';
+        ctx.fillRect(sx-2*s, y-16*s, 4*s, 1.5*s); // visor
+
+        // arms
+        ctx.fillStyle='#5f8450';
+        ctx.fillRect(sx-9*s, y-9*s, 3*s, 7*s);
+        ctx.fillRect(sx+6*s,  y-9*s, 3*s, 7*s);
+
+        // legs
+        ctx.fillStyle='#2f4726';
+        ctx.fillRect(sx-4*s, y+2*s, 3*s, 7*s);
+        ctx.fillRect(sx+1*s, y+2*s, 3*s, 7*s);
+
+        // rifle
+        ctx.fillStyle='#2a2c2f';
+        ctx.fillRect(sx+4*s, y-8*s, 12*s, 2*s);
+
+        drawHealthBar(sx, y-22*s, s, 0.65, '#e74c3c');
+    }
+
+    function drawEnemyFast(sx, sy, scale, bob) {
+        const s = scale, y = sy + bob;
+        ctx.fillStyle='rgba(0,0,0,0.3)';
+        ctx.beginPath(); ctx.ellipse(sx, y+14*s, 12*s, 4*s, 0, 0, TAU); ctx.fill();
+
+        // jet body
+        ctx.fillStyle='#cfd7de';
+        ctx.beginPath();
+        ctx.moveTo(sx+16*s, y);
+        ctx.lineTo(sx+2*s, y+7*s); ctx.lineTo(sx-6*s, y+10*s);
+        ctx.lineTo(sx-4*s, y+3*s); ctx.lineTo(sx-14*s, y+3*s);
+        ctx.lineTo(sx-10*s, y);
+        ctx.lineTo(sx-14*s, y-3*s); ctx.lineTo(sx-4*s, y-3*s);
+        ctx.lineTo(sx-6*s, y-10*s); ctx.lineTo(sx+2*s, y-7*s);
+        ctx.closePath(); ctx.fill();
+
+        ctx.fillStyle='#7ed7ff';
+        ctx.beginPath(); ctx.ellipse(sx+3*s, y, 4*s, 2.5*s, 0, 0, TAU); ctx.fill(); // cockpit
+
+        // engine flame
+        ctx.fillStyle='rgba(255,155,30,0.85)';
+        ctx.beginPath(); ctx.moveTo(sx-14*s,y);
+        ctx.lineTo(sx-20*s, y+3*s); ctx.lineTo(sx-20*s, y-3*s); ctx.closePath(); ctx.fill();
+
+        drawHealthBar(sx, y-18*s, s, 0.45, '#f1c40f');
+    }
+
+    function drawEnemyTank(sx, sy, scale, bob) {
+        const s = scale, y = sy + bob;
+        ctx.fillStyle='rgba(0,0,0,0.4)';
+        ctx.beginPath(); ctx.ellipse(sx, y+16*s, 16*s, 5*s, 0, 0, TAU); ctx.fill();
+
+        // tracks
+        ctx.fillStyle='#3f4d36';
+        ctx.fillRect(sx-18*s, y-10*s, 7*s, 22*s);
+        ctx.fillRect(sx+11*s,  y-10*s, 7*s, 22*s);
+
+        // hull
+        ctx.fillStyle='#667852';
+        ctx.fillRect(sx-12*s, y-11*s, 24*s, 22*s);
+        ctx.strokeStyle='#2f3828'; ctx.lineWidth=1.2;
+        ctx.strokeRect(sx-12*s, y-11*s, 24*s, 22*s);
+
+        // turret
+        ctx.fillStyle='#73895c';
+        ctx.beginPath(); ctx.arc(sx, y, 7*s, 0, TAU); ctx.fill();
+        ctx.strokeStyle='#435138'; ctx.stroke();
+
+        // barrel
+        ctx.fillStyle='#2e332c';
+        ctx.fillRect(sx+6*s, y-1.5*s, 14*s, 3*s);
+        ctx.fillRect(sx+18*s, y-2*s, 4*s, 4*s);
+
+        drawHealthBar(sx, y-22*s, s, 1.0, '#8e44ad');
+    }
+
+    function drawEnemyBoss(sx, sy, scale, bob) {
+        const s = scale, y = sy + bob;
+        // halo spin
+        ctx.save(); ctx.translate(sx, y);
+        ctx.rotate(t * 0.012);
+        ctx.strokeStyle='rgba(241,196,15,0.7)'; ctx.lineWidth=2*s;
+        for (let i=0;i<6;i++) {
+            ctx.rotate(Math.PI/3);
+            ctx.beginPath(); ctx.moveTo(22*s,0); ctx.lineTo(30*s,0); ctx.stroke();
+        }
+        ctx.restore();
+
+        ctx.fillStyle='rgba(0,0,0,0.4)';
+        ctx.beginPath(); ctx.ellipse(sx, y+22*s, 20*s, 6*s, 0, 0, TAU); ctx.fill();
+
+        const g = ctx.createRadialGradient(sx-4*s, y-5*s, 5*s, sx, y, 24*s);
+        g.addColorStop(0,'#6d7f93'); g.addColorStop(0.55,'#34495e'); g.addColorStop(1,'#1b2838');
+        ctx.fillStyle=g; ctx.beginPath(); ctx.arc(sx,y,24*s,0,TAU); ctx.fill();
+        ctx.fillStyle='#1f2a35'; ctx.beginPath(); ctx.arc(sx,y,14*s,0,TAU); ctx.fill();
+        ctx.fillStyle='#c0392b'; ctx.fillRect(sx+9*s,y-3*s,12*s,6*s);
+        ctx.fillStyle='#f1c40f';
+        ctx.fillRect(sx-4*s,y-19*s,8*s,4*s);
+        ctx.fillStyle='#ffdf67';
+        ctx.beginPath(); ctx.arc(sx-5*s,y-1*s,2.5*s,0,TAU); ctx.fill();
+        ctx.beginPath(); ctx.arc(sx+5*s,y-1*s,2.5*s,0,TAU); ctx.fill();
+        ctx.strokeStyle='rgba(241,196,15,0.9)'; ctx.lineWidth=2.5*s;
+        ctx.beginPath(); ctx.arc(sx,y,26*s,0,TAU); ctx.stroke();
+
+        drawHealthBar(sx, y-34*s, s, 0.8, '#2c3e50');
+    }
+
+    function drawHealthBar(sx, sy, scale, pct, col) {
+        const s = scale, bw = 28*s;
+        ctx.fillStyle='rgba(0,0,0,0.5)';
+        ctx.fillRect(sx-bw/2, sy, bw, 4*s);
+        ctx.fillStyle=col;
+        ctx.fillRect(sx-bw/2, sy, bw*pct, 4*s);
+        ctx.strokeStyle='rgba(255,255,255,0.3)'; ctx.lineWidth=0.5;
+        ctx.strokeRect(sx-bw/2, sy, bw, 4*s);
+    }
+
+    // ── Projectiles ──────────────────────────
+    const projs = Array.from({length:8}, (_, i) => ({
+        x: Math.random(),
+        y: 0.55 + Math.random()*0.25,
+        vx: (0.0015 + Math.random()*0.002) * (Math.random()<0.5?1:-1),
+        vy: -0.0005 - Math.random()*0.001,
+        color: ['#49b9ff','#ffe56d','#c987ff','#ff7f50','#67e28f'][i%5],
+        r: 3 + Math.random()*3,
+        trail: []
+    }));
+
+    function updateDrawProjectiles() {
+        for (const p of projs) {
+            p.trail.push({x: p.x*W, y: p.y*H});
+            if (p.trail.length > 10) p.trail.shift();
+
+            p.x += p.vx; p.y += p.vy;
+            p.vy += 0.000015; // slight gravity
+
+            if (p.x<0||p.x>1||p.y<0.45||p.y>0.95) {
+                p.x = Math.random(); p.y = 0.7+Math.random()*0.15;
+                p.vx = (0.002+Math.random()*0.003)*(Math.random()<0.5?1:-1);
+                p.vy = -0.003 - Math.random()*0.003;
+                p.trail = [];
+            }
+
+            // trail
+            for (let i=1;i<p.trail.length;i++) {
+                const a = i/p.trail.length;
+                ctx.globalAlpha = a * 0.6;
+                ctx.strokeStyle = p.color;
+                ctx.lineWidth = p.r * a * 0.8;
+                ctx.beginPath();
+                ctx.moveTo(p.trail[i-1].x, p.trail[i-1].y);
+                ctx.lineTo(p.trail[i].x, p.trail[i].y);
+                ctx.stroke();
+            }
+            ctx.globalAlpha=1;
+
+            // glow
+            ctx.shadowBlur = 12; ctx.shadowColor = p.color;
+            ctx.fillStyle = p.color;
+            ctx.beginPath(); ctx.arc(p.x*W, p.y*H, p.r, 0, TAU); ctx.fill();
+            ctx.shadowBlur = 0;
+        }
+    }
+
+    // ── Lightning arcs between Tesla towers ──
+    function drawLightning(x1,y1,x2,y2,alpha) {
+        const pts = [{x:x1,y:y1}];
+        const segs = 12;
+        for(let i=1;i<segs;i++){
+            const k=i/segs;
+            pts.push({
+                x: lerp(x1,x2,k) + (Math.random()*2-1)*22,
+                y: lerp(y1,y2,k) + (Math.random()*2-1)*14
+            });
+        }
+        pts.push({x:x2,y:y2});
+        ctx.globalAlpha=0.35*alpha;
+        ctx.strokeStyle='#71deff'; ctx.lineWidth=5; ctx.shadowBlur=14; ctx.shadowColor='#9cf8ff';
+        ctx.beginPath(); ctx.moveTo(pts[0].x,pts[0].y);
+        for(let i=1;i<pts.length;i++) ctx.lineTo(pts[i].x,pts[i].y);
+        ctx.stroke();
+        ctx.globalAlpha=0.9*alpha;
+        ctx.strokeStyle='#e7ffff'; ctx.lineWidth=1.8; ctx.shadowBlur=4;
+        ctx.beginPath(); ctx.moveTo(pts[0].x,pts[0].y);
+        for(let i=1;i<pts.length;i++) ctx.lineTo(pts[i].x,pts[i].y);
+        ctx.stroke();
+        ctx.globalAlpha=1; ctx.shadowBlur=0;
+    }
+
+    // ── clouds ────────────────────────────────
+    const clouds = Array.from({length:5}, (_, i) => ({
+        x: (i/5) + Math.random()*0.2,
+        y: 0.06 + Math.random()*0.18,
+        w: 100+Math.random()*80, h: 36+Math.random()*20,
+        speed: 0.00004+Math.random()*0.00006,
+        alpha: 0.55+Math.random()*0.35
+    }));
+    function drawClouds() {
+        for (const c of clouds) {
+            c.x += c.speed;
+            if (c.x > 1.3) c.x = -0.3;
+            const cx=c.x*W, cy=c.y*H;
+            ctx.globalAlpha=c.alpha;
+            ctx.fillStyle='#c8dff0';
+            ctx.beginPath(); ctx.ellipse(cx, cy, c.w, c.h, 0, 0, TAU); ctx.fill();
+            ctx.beginPath(); ctx.ellipse(cx-c.w*0.3, cy+5, c.w*0.6, c.h*0.75, 0, 0, TAU); ctx.fill();
+            ctx.beginPath(); ctx.ellipse(cx+c.w*0.3, cy+3, c.w*0.55, c.h*0.7, 0, 0, TAU); ctx.fill();
+            ctx.globalAlpha=1;
+        }
+    }
+
+    // ── Scene layout ─────────────────────────
+    // Towers sit left+right, school center-back, enemies march on path
+    const GY = () => H * 0.63; // ground y
+
+    // enemy marchers
+    const marchers = [
+        { type:'basic', xOff:0.0,  speed:0.00025, scale:()=>H/480 },
+        { type:'fast',  xOff:0.12, speed:0.00055, scale:()=>H/520 },
+        { type:'tank',  xOff:0.25, speed:0.00014, scale:()=>H/450 },
+        { type:'basic', xOff:0.5,  speed:0.00025, scale:()=>H/480 },
+        { type:'fast',  xOff:0.65, speed:0.0005,  scale:()=>H/520 },
+    ];
+    marchers.forEach(m => { m.x = m.xOff; });
+
+    function marchX(m) {
+        // march from left edge to right edge across the path band
+        const screenX = lerp(W*0.18, W*0.82, m.x);
+        // perspective scale: bigger near bottom
+        const perspY  = GY() + (m.x) * (H - GY()) * 0.55;
+        const perspS  = lerp(0.55, 1.0, m.x) * m.scale();
+        return { sx: screenX, sy: perspY, s: perspS };
+    }
+
+    // ── Main render ───────────────────────────
+    function frame() {
+        if (document.getElementById('startScreen').style.display === 'none') return;
+        t++;
+
+        ctx.clearRect(0, 0, W, H);
+
+        const px = Math.sin(t * 0.003) * 12; // gentle parallax drift
+        const pulse = 0.5 + 0.5 * Math.sin(t * 0.06);
+        const spin  = t * 0.04;
+
+        // sky layers
+        drawSky();
+        drawStars();
+        drawMoon();
+        drawClouds();
+        drawHillsFar(px);
+        drawHillsMid(px);
+        drawGround();
+        drawPath();
+
+        // ── Back row: school + far towers ──
+        const sc = H/520;
+        const sy = GY() - 10;
+
+        // school center-back (smaller = further back)
+        drawSchool(W*0.5, sy - H*0.02, sc*0.9);
+
+        // towers back-left and back-right
+        drawTowerFreeze(W*0.22, sy + 8, sc*0.85, pulse);
+        drawTowerTesla( W*0.78, sy + 8, sc*0.85, pulse);
+
+        // ── Front row towers ──
+        const sfront = sc * 1.15;
+        const syf = GY() + H*0.06;
+        drawTowerBasic(W*0.12, syf, sfront, pulse);
+        drawTowerRapid(W*0.88, syf, sfront, spin);
+        drawTowerTesla(W*0.32, syf - H*0.02, sfront*0.9, pulse);
+        drawTowerFreeze(W*0.68, syf - H*0.02, sfront*0.9, pulse);
+
+        // lightning between tesla towers
+        if (Math.sin(t * 0.08) > 0.3) {
+            const la = 0.5 + 0.5*Math.sin(t*0.08);
+            drawLightning(W*0.32, syf-H*0.02-18*sfront*0.9, W*0.78, sy+8-18*sc*0.85, la);
+        }
+
+        // ── Enemies marching ──
+        for (const m of marchers) {
+            m.x += m.speed;
+            if (m.x > 1.05) m.x = -0.05;
+            const {sx, sy: esy, s} = marchX(m);
+            const bob = Math.sin(t * 0.08 + m.xOff * 10) * 1.5;
+
+            if      (m.type === 'basic') drawEnemyBasic(sx, esy, s, bob);
+            else if (m.type === 'fast')  drawEnemyFast(sx,  esy, s, bob);
+            else if (m.type === 'tank')  drawEnemyTank(sx,  esy, s, bob);
+        }
+
+        // Boss occasionally lumbers across far back
+        if (Math.floor(t/220) % 3 === 0) {
+            const bx = ((t % 220) / 220);
+            drawEnemyBoss(lerp(W*0.1, W*0.9, bx), sy - H*0.04, sc*0.8,
+                Math.sin(t*0.04)*1.2);
+        }
+
+        // projectiles
+        updateDrawProjectiles();
+
+        // vignette
+        const vig = ctx.createRadialGradient(W/2,H/2,H*0.28,W/2,H/2,H*0.85);
+        vig.addColorStop(0,'rgba(0,0,0,0)');
+        vig.addColorStop(1,'rgba(0,0,15,0.72)');
+        ctx.fillStyle=vig; ctx.fillRect(0,0,W,H);
+
+        requestAnimationFrame(frame);
+    }
+
+    window.addEventListener('resize', resize);
+    frame();
+})();
+</script>
 <script src="game.js"></script>
 </body>
 </html>
