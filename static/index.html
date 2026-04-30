@@ -17,7 +17,41 @@
             <span class="ptsd-acronym">PTSD</span>
             <span class="ptsd-full">Protect the School Demo</span>
         </div>
-        <p class="start-sub">Waves are coming. The school won't defend itself.</p>
+        <p class="start-sub">The lights flicker, then fail.
+Silence fills the halls… for a moment.
+
+Then it begins.
+
+Something is coming for the school. Not once. Not twice.
+Over and over again — in waves that never truly stop.
+
+There’s no evacuation. No rescue.
+Whatever was supposed to protect this place is gone.
+
+All that’s left… is you.
+
+The classrooms stand empty, but they won’t stay untouched for long. Every corridor is a path. Every entrance, a weakness. If they get through, there is nothing left to slow them down.
+
+You must turn this fragile place into something it was never meant to be — a fortress.
+
+Build your defenses piece by piece. Place your towers carefully. Watch how they move, how they adapt, how they overwhelm. The waves will change. They will grow faster. Smarter. Less predictable.
+
+Some will rush past before you can react.
+Others will push straight through your strongest defenses.
+And some… will force you to rethink everything you thought would work.
+
+Resources are limited. Time is shorter.
+Every choice matters — and every mistake lingers.
+
+You are not meant to win easily.
+You are meant to endure.
+
+This is only the beginning. A fragment of something larger. A test to see how long you can hold on before the pressure breaks you.
+
+The school cannot defend itself.
+
+But it will fall…
+if you don’t.</p>
         <div class="start-actions">
             <button id="playBtn" class="play-btn">Play</button>
             <button id="guideBtn" class="play-btn guide-btn">Guide</button>
@@ -44,6 +78,28 @@
                 <p><b>Stealth Bomber</b>: visible, but only targetable in Radar range.</p>
                 <p><b>Boss</b>: appears every 5 waves.</p>
             </div>
+            <div class="guide-block">
+                <h3>Buttons</h3>
+                <p><b>Start Wave</b>: Starts the current wave.</p>
+                <p><b>Pause</b>: Pauses the game.</p></p>
+                <p><b>Auto</b>: Toggle for auto starting waves.</p></p>
+                <p><b>Speed</b>: Toggle for game speed.</p>
+            </div>
+            <div class="guide-block">
+                <h3>Special upgrades</h3>
+
+                <p><b>Squad Link</b>: +1 extra target per shot (max 3)</p>
+                <p><b>AP Shells</b>: +4 armor penetration (max 3)</p>
+                <p><b>Deadeye</b>: +1 pierce and faster reload (max 2)</p>
+                <p><b>Twin Barrels</b>: +2 extra targets per shot (max 2)</p>
+                <p><b>Deep Freeze</b>: stronger and longer slow (max 3)</p>
+                <p><b>Overcharge</b>: +range and +damage pulse (max 3)</p>
+                <p><b>Shrapnel Core</b>: +1 target and +2 armor penetration (max 3)</p>
+                <p><b>Ion Core</b>: +damage and faster fire rate (max 2)</p>
+                <p><b>Maelstrom Core</b>: more pulses and targets, slightly wider storm (max 2)</p>
+                <p><b>Compound Interest</b>: +income per payout and faster payout rate (max 3)</p>
+                <p><b>Signal Amplifier</b>: +radar range for stealth reveal (max 3)</p>
+            </div>
         </div>
         <button id="backBtn" class="play-btn guide-btn">Back</button>
     </div>
@@ -55,12 +111,12 @@
         <div class="ui-head">
             <div class="stats">
                 <div class="stat-card">
-                    <span class="stat-label">Gold</span>
-                    <span class="stat-value">$<span id="gold">100</span></span>
+                    <span class="stat-label1">&#129689;</span>
+                    <span class="stat-value"><span id="gold">100</span></span>
                 </div>
                 <div class="stat-card">
-                    <span class="stat-label">Lives</span>
-                    <span class="stat-value"><span id="lives">&#9829; x20</span></span>
+                    
+                    <span class="stat-value"><span id="lives">x20</span></span>
                 </div>
                 <div class="stat-card">
                     <span class="stat-label">Wave</span>
@@ -76,28 +132,19 @@
                 <button id="startWave" class="start-btn">Start Wave</button>
                 <button id="pauseBtn" class="start-btn">Pause</button>
                 <button id="autoStartToggle" class="start-btn auto-btn">Auto: OFF</button>
+                <button id="gamespeedToggle" class="start-btn auto-btn">Speed x1</button>
             </div>
         </div>
+        
 
-        <div class="tower-selection">
-            <button id="tower1" class="tower-btn t1" data-cost="55">Basic<br><small>$55</small></button>
-            <button id="tower2" class="tower-btn t2" data-cost="80">Heavy<br><small>$80</small></button>
-            <button id="tower3" class="tower-btn t3" data-cost="175">Sniper<br><small>$175</small></button>
-            <button id="tower4" class="tower-btn t4" data-cost="70">Rapid<br><small>$70</small></button>
-            <button id="tower5" class="tower-btn t5" data-cost="100">Freeze<br><small>$100</small></button>
-            <button id="tower6" class="tower-btn t6" data-cost="100">Pulse<br><small>$100</small></button>
-            <button id="tower7" class="tower-btn t7" data-cost="150">Launcher<br><small>$150</small></button>
-            <button id="tower8" class="tower-btn t8" data-cost="250">Tesla<br><small>$250</small></button>
-            <button id="tower9" class="tower-btn t9" data-cost="240">Tempest<br><small>$240</small></button>
-            <button id="tower10" class="tower-btn t10" data-cost="260">Bank<br><small>$260</small></button>
-            <button id="tower11" class="tower-btn t11" data-cost="150">Radar<br><small>$150</small></button>
-        </div>
+        
     </div>
+    
 
-    <!-- CANVAS -->
+    <!-- CANVAS (scherm) -->
     <canvas id="gameCanvas" width="1000" height="600"></canvas>
 
-    <!-- TESLA ABILITY -->
+    <!-- TOWER ABILITY -->
     <div class="ability-bar">
         <button id="teslaAbilityBtn" class="ability-btn" disabled>Tesla Storm (Need 2 Tesla)</button>
         <button id="bankAbilityBtn" class="ability-btn" disabled>Gold Rain (Need 2 Bank)</button>
@@ -107,11 +154,12 @@
     <!-- ENEMY LEGEND -->
     <div class="legend">
         <div class="legend-title">Enemies</div>
-        <div class="legend-item"><span class="dot" style="background:#e74c3c"></span>Basic</div>
-        <div class="legend-item"><span class="dot" style="background:#f1c40f"></span>Fast</div>
-        <div class="legend-item"><span class="dot" style="background:#8e44ad"></span>Tank</div>
-        <div class="legend-item"><span class="dot" style="background:#95a5a6"></span>Armored</div>
-        <div class="legend-item"><span class="dot" style="background:#2c3e50"></span>Boss (every 5 waves)</div>
+        <div class="legend-item"><span class="dot" style="background:#405334"></span>Basic</div>
+        <div class="legend-item"><span class="dot" style="background:#7ed7ff"></span>Fast</div>
+        <div class="legend-item"><span class="dot" style="background:#539e25"></span>Tank</div>        
+        <div class="legend-item"><span class="dot" style="background:#5f6b74"></span>Armored</div>
+        <div class="legend-item"><span class="dot" style="background:#5f6b74"></span>Stealth Bomber</div>
+        <div class="legend-item"><span class="dot" style="background:#1f2a35"></span>Boss (every 5 waves)</div>
     </div>
 
     <!-- UPGRADE PANEL -->
@@ -135,6 +183,19 @@
     </div>
 
 </div>
+<div class="tower-selection">
+            <button id="tower1" class="tower-btn t1" data-cost="55">Basic<br><small>$55</small></button>
+            <button id="tower2" class="tower-btn t2" data-cost="80">Heavy<br><small>$80</small></button>
+            <button id="tower3" class="tower-btn t3" data-cost="175">Sniper<br><small>$175</small></button>
+            <button id="tower4" class="tower-btn t4" data-cost="70">Rapid<br><small>$70</small></button>
+            <button id="tower5" class="tower-btn t5" data-cost="100">Freeze<br><small>$100</small></button>
+            <button id="tower6" class="tower-btn t6" data-cost="100">Pulse<br><small>$100</small></button>
+            <button id="tower7" class="tower-btn t7" data-cost="150">Launcher<br><small>$150</small></button>
+            <button id="tower8" class="tower-btn t8" data-cost="250">Tesla<br><small>$250</small></button>
+            <button id="tower9" class="tower-btn t9" data-cost="240">Tempest<br><small>$240</small></button>
+            <button id="tower10" class="tower-btn t10" data-cost="260">Bank<br><small>$260</small></button>
+            <button id="tower11" class="tower-btn t11" data-cost="150">Radar<br><small>$150</small></button>
+        </div>
 
 <script>
 // ═══════════════════════════════════════════
@@ -295,32 +356,48 @@
         ctx.setLineDash([]);
     }
 
-    // ═══ ISO TOWER DRAWINGS ═══════════════════
+    // ═══ ISO TOWER DRAWINGS — brick-base style matching school ══════════
 
-    // Basic tower – blue dome cannon
+    // Helper: draw a small brick ISO base for towers
+    function drawBrickBase(sx, sy, s, bw, bh, bth) {
+        // top face
+        ctx.fillStyle = '#8c5a35';
+        ctx.beginPath();
+        ctx.moveTo(sx,    sy-bh-bth*0.5);
+        ctx.lineTo(sx+bw, sy-bh);
+        ctx.lineTo(sx,    sy-bh+bth*0.5);
+        ctx.lineTo(sx-bw, sy-bh);
+        ctx.closePath(); ctx.fill();
+        ctx.strokeStyle='rgba(180,120,60,0.4)'; ctx.lineWidth=0.7;
+        ctx.beginPath();
+        ctx.moveTo(sx,sy-bh-bth*0.5); ctx.lineTo(sx+bw,sy-bh);
+        ctx.lineTo(sx,sy-bh+bth*0.5); ctx.lineTo(sx-bw,sy-bh);
+        ctx.closePath(); ctx.stroke();
+        // left wall
+        ctx.fillStyle='#5a3520';
+        ctx.beginPath();
+        ctx.moveTo(sx-bw,sy-bh); ctx.lineTo(sx,sy-bh+bth*0.5);
+        ctx.lineTo(sx,sy+bth*0.5); ctx.lineTo(sx-bw,sy);
+        ctx.closePath(); ctx.fill();
+        // right wall
+        ctx.fillStyle='#7a4c2e';
+        ctx.beginPath();
+        ctx.moveTo(sx+bw,sy-bh); ctx.lineTo(sx,sy-bh+bth*0.5);
+        ctx.lineTo(sx,sy+bth*0.5); ctx.lineTo(sx+bw,sy);
+        ctx.closePath(); ctx.fill();
+        // brick lines
+        ctx.strokeStyle='rgba(30,10,0,0.12)'; ctx.lineWidth=0.6;
+        for (let r=1; r<3; r++) {
+            const fy = sy - (r/3)*bh;
+            ctx.beginPath(); ctx.moveTo(sx-bw,fy); ctx.lineTo(sx,fy+bth*0.5); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(sx+bw,fy); ctx.lineTo(sx,fy+bth*0.5); ctx.stroke();
+        }
+    }
+
+    // Basic tower – blue dome cannon on brick base
     function drawTowerBasic(sx, sy, scale, pulse) {
         const s = scale;
-        // base platform (iso top face)
-        ctx.fillStyle = '#3f2a14';
-        ctx.beginPath();
-        ctx.moveTo(sx,      sy - 14*s);
-        ctx.lineTo(sx+22*s, sy - 7*s);
-        ctx.lineTo(sx,      sy);
-        ctx.lineTo(sx-22*s, sy - 7*s);
-        ctx.closePath(); ctx.fill();
-        // base side face left
-        ctx.fillStyle = '#2a1c0d';
-        ctx.beginPath();
-        ctx.moveTo(sx-22*s, sy-7*s); ctx.lineTo(sx, sy);
-        ctx.lineTo(sx, sy+10*s); ctx.lineTo(sx-22*s, sy+3*s);
-        ctx.closePath(); ctx.fill();
-        // base side face right
-        ctx.fillStyle = '#321f0f';
-        ctx.beginPath();
-        ctx.moveTo(sx+22*s, sy-7*s); ctx.lineTo(sx, sy);
-        ctx.lineTo(sx, sy+10*s); ctx.lineTo(sx+22*s, sy+3*s);
-        ctx.closePath(); ctx.fill();
-
+        drawBrickBase(sx, sy, s, 22*s, 10*s, 9*s);
         // dome
         const domeGrad = ctx.createRadialGradient(sx-4*s, sy-22*s, 2, sx, sy-18*s, 14*s);
         domeGrad.addColorStop(0, '#7dd8ff'); domeGrad.addColorStop(1, '#1b5c8a');
@@ -328,99 +405,55 @@
         ctx.beginPath(); ctx.arc(sx, sy-18*s, 14*s, 0, TAU); ctx.fill();
         ctx.strokeStyle = '#49b9ff'; ctx.lineWidth = 1.5*s;
         ctx.beginPath(); ctx.arc(sx, sy-18*s, 10*s, 0.4, Math.PI-0.4); ctx.stroke();
-
-        // barrel pointing right-forward
-        ctx.save();
-        ctx.translate(sx, sy-18*s);
-        ctx.rotate(0.4);
-        ctx.fillStyle = '#1a2530';
-        ctx.fillRect(0, -3*s, 18*s, 6*s);
-        ctx.fillStyle = '#49b9ff';
-        ctx.fillRect(15*s, -2*s, 5*s, 4*s);
+        // barrel
+        ctx.save(); ctx.translate(sx, sy-18*s); ctx.rotate(0.4);
+        ctx.fillStyle = '#1a2530'; ctx.fillRect(0, -3*s, 18*s, 6*s);
+        ctx.fillStyle = '#49b9ff'; ctx.fillRect(15*s, -2*s, 5*s, 4*s);
         ctx.restore();
-
         // glow
         ctx.globalAlpha = 0.25 + 0.15*pulse;
         const glowG = ctx.createRadialGradient(sx, sy-18*s, 2, sx, sy-18*s, 28*s);
         glowG.addColorStop(0,'rgba(73,185,255,0.8)'); glowG.addColorStop(1,'rgba(0,0,0,0)');
-        ctx.fillStyle = glowG;
-        ctx.beginPath(); ctx.arc(sx, sy-18*s, 28*s, 0, TAU); ctx.fill();
+        ctx.fillStyle = glowG; ctx.beginPath(); ctx.arc(sx, sy-18*s, 28*s, 0, TAU); ctx.fill();
         ctx.globalAlpha = 1;
     }
 
-    // Rapid tower – gold spinning rotor
+    // Rapid tower – gold spinning rotor on brick base
     function drawTowerRapid(sx, sy, scale, spin) {
         const s = scale;
-        // base
-        ctx.fillStyle = '#5e4a0f';
-        ctx.beginPath();
-        ctx.moveTo(sx, sy-12*s); ctx.lineTo(sx+20*s, sy-6*s);
-        ctx.lineTo(sx, sy); ctx.lineTo(sx-20*s, sy-6*s); ctx.closePath(); ctx.fill();
-        ctx.fillStyle = '#3a2e08';
-        ctx.beginPath();
-        ctx.moveTo(sx-20*s, sy-6*s); ctx.lineTo(sx, sy);
-        ctx.lineTo(sx, sy+8*s); ctx.lineTo(sx-20*s, sy+2*s); ctx.closePath(); ctx.fill();
-        ctx.fillStyle = '#4a3a0a';
-        ctx.beginPath();
-        ctx.moveTo(sx+20*s, sy-6*s); ctx.lineTo(sx, sy);
-        ctx.lineTo(sx, sy+8*s); ctx.lineTo(sx+20*s, sy+2*s); ctx.closePath(); ctx.fill();
-
-        // drum body
+        drawBrickBase(sx, sy, s, 20*s, 10*s, 8*s);
         ctx.fillStyle = '#d4ac0d';
-        ctx.beginPath(); ctx.arc(sx, sy-16*s, 11*s, 0, TAU); ctx.fill();
+        ctx.beginPath(); ctx.arc(sx, sy-18*s, 11*s, 0, TAU); ctx.fill();
         ctx.fillStyle = '#5e4a0f';
-        ctx.beginPath(); ctx.arc(sx, sy-16*s, 8*s, 0, TAU); ctx.fill();
-
-        // spinning blades
-        ctx.save(); ctx.translate(sx, sy-16*s); ctx.rotate(spin);
+        ctx.beginPath(); ctx.arc(sx, sy-18*s, 8*s, 0, TAU); ctx.fill();
+        ctx.save(); ctx.translate(sx, sy-18*s); ctx.rotate(spin);
         ctx.fillStyle = '#ffe066';
-        for (let i=0;i<4;i++) {
-            ctx.rotate(Math.PI/2);
-            ctx.fillRect(0,-2*s,13*s,4*s);
-        }
+        for (let i=0;i<4;i++) { ctx.rotate(Math.PI/2); ctx.fillRect(0,-2*s,13*s,4*s); }
         ctx.restore();
-
-        // double barrels
-        ctx.save(); ctx.translate(sx, sy-16*s); ctx.rotate(0.5);
+        ctx.save(); ctx.translate(sx, sy-18*s); ctx.rotate(0.5);
         ctx.fillStyle = '#1f1f1f';
         ctx.fillRect(0,-5*s,14*s,3*s); ctx.fillRect(0,2*s,14*s,3*s);
         ctx.fillStyle = '#ffe066';
         ctx.fillRect(12*s,-5*s,4*s,3*s); ctx.fillRect(12*s,2*s,4*s,3*s);
         ctx.restore();
-
         ctx.globalAlpha = 0.2;
-        const gg = ctx.createRadialGradient(sx,sy-16*s,2,sx,sy-16*s,22*s);
+        const gg = ctx.createRadialGradient(sx,sy-18*s,2,sx,sy-18*s,22*s);
         gg.addColorStop(0,'rgba(255,224,50,0.7)'); gg.addColorStop(1,'rgba(0,0,0,0)');
-        ctx.fillStyle=gg; ctx.beginPath(); ctx.arc(sx,sy-16*s,22*s,0,TAU); ctx.fill();
+        ctx.fillStyle=gg; ctx.beginPath(); ctx.arc(sx,sy-18*s,22*s,0,TAU); ctx.fill();
         ctx.globalAlpha=1;
     }
 
-    // Tesla tower – coil emitter
+    // Tesla tower – coil emitter on brick base
     function drawTowerTesla(sx, sy, scale, pulse) {
         const s = scale;
-        ctx.fillStyle = '#103f56';
-        ctx.beginPath();
-        ctx.moveTo(sx, sy-12*s); ctx.lineTo(sx+20*s, sy-6*s);
-        ctx.lineTo(sx, sy); ctx.lineTo(sx-20*s, sy-6*s); ctx.closePath(); ctx.fill();
-        ctx.fillStyle = '#0a2a38';
-        ctx.beginPath();
-        ctx.moveTo(sx-20*s,sy-6*s); ctx.lineTo(sx,sy); ctx.lineTo(sx,sy+8*s); ctx.lineTo(sx-20*s,sy+2*s); ctx.closePath(); ctx.fill();
-        ctx.fillStyle = '#0e3448';
-        ctx.beginPath();
-        ctx.moveTo(sx+20*s,sy-6*s); ctx.lineTo(sx,sy); ctx.lineTo(sx,sy+8*s); ctx.lineTo(sx+20*s,sy+2*s); ctx.closePath(); ctx.fill();
-
-        // coil rings
+        drawBrickBase(sx, sy, s, 20*s, 10*s, 8*s);
         ctx.strokeStyle = '#89eeff'; ctx.lineWidth = 2*s;
         ctx.beginPath(); ctx.arc(sx, sy-18*s, 12*s, 0, TAU); ctx.stroke();
         ctx.strokeStyle='rgba(80,200,220,0.5)'; ctx.lineWidth=1.5*s;
         ctx.beginPath(); ctx.arc(sx, sy-18*s, 8*s, 0, TAU); ctx.stroke();
-
         ctx.fillStyle = '#d6fbff';
         ctx.beginPath(); ctx.arc(sx, sy-18*s, 4*s + pulse*2.5*s, 0, TAU); ctx.fill();
-
-        // node spikes
-        ctx.strokeStyle=`rgba(100,230,255,${0.4+pulse*0.5})`;
-        ctx.lineWidth = 2*s;
+        ctx.strokeStyle=`rgba(100,230,255,${0.4+pulse*0.5})`; ctx.lineWidth = 2*s;
         for (let i=0;i<4;i++) {
             const a = i*(Math.PI/2) + pulse*0.3;
             ctx.beginPath();
@@ -428,7 +461,6 @@
             ctx.lineTo(sx+Math.cos(a)*16*s, sy-18*s+Math.sin(a)*16*s);
             ctx.stroke();
         }
-
         ctx.globalAlpha=0.3+0.15*pulse;
         const tg = ctx.createRadialGradient(sx,sy-18*s,2,sx,sy-18*s,30*s);
         tg.addColorStop(0,'rgba(100,230,255,0.9)'); tg.addColorStop(1,'rgba(0,0,0,0)');
@@ -436,21 +468,10 @@
         ctx.globalAlpha=1;
     }
 
-    // Freeze tower – crystal
+    // Freeze tower – crystal on brick base
     function drawTowerFreeze(sx, sy, scale, pulse) {
         const s = scale;
-        ctx.fillStyle = '#33214f';
-        ctx.beginPath();
-        ctx.moveTo(sx, sy-10*s); ctx.lineTo(sx+18*s, sy-5*s);
-        ctx.lineTo(sx, sy); ctx.lineTo(sx-18*s, sy-5*s); ctx.closePath(); ctx.fill();
-        ctx.fillStyle='#22163a';
-        ctx.beginPath();
-        ctx.moveTo(sx-18*s,sy-5*s); ctx.lineTo(sx,sy); ctx.lineTo(sx,sy+7*s); ctx.lineTo(sx-18*s,sy+2*s); ctx.closePath(); ctx.fill();
-        ctx.fillStyle='#2a1c46';
-        ctx.beginPath();
-        ctx.moveTo(sx+18*s,sy-5*s); ctx.lineTo(sx,sy); ctx.lineTo(sx,sy+7*s); ctx.lineTo(sx+18*s,sy+2*s); ctx.closePath(); ctx.fill();
-
-        // crystal
+        drawBrickBase(sx, sy, s, 18*s, 10*s, 8*s);
         ctx.fillStyle='#c8a0ff';
         ctx.beginPath();
         ctx.moveTo(sx, sy-28*s);
@@ -460,7 +481,6 @@
         ctx.strokeStyle='#e4d4ff'; ctx.lineWidth=1.2*s;
         ctx.beginPath();
         ctx.moveTo(sx, sy-26*s); ctx.lineTo(sx+5*s, sy-12*s); ctx.lineTo(sx-5*s, sy-12*s); ctx.closePath(); ctx.stroke();
-
         ctx.globalAlpha=0.2+0.15*pulse;
         const fg=ctx.createRadialGradient(sx,sy-18*s,2,sx,sy-18*s,24*s);
         fg.addColorStop(0,'rgba(180,120,255,0.8)'); fg.addColorStop(1,'rgba(0,0,0,0)');
@@ -468,131 +488,262 @@
         ctx.globalAlpha=1;
     }
 
-    // School building (2.5D isometric)
+    // ═══ DON BOSCO GENT – accurate 2.5D building from photo ═══════════════
+    // The real building: tall 4-storey brick tower (left), vertical white
+    // concrete strip running full height, lower 2-storey wing extending right,
+    // flat roof, large billboard on right-center facade, "DON BOSCO" letters
+    // on left side wall.
     function drawSchool(sx, sy, scale) {
         const s = scale;
-        const tw = 44*s, th = 22*s, bh = 55*s;
 
-        // roof top face
-        ctx.fillStyle = '#8b4f26';
-        ctx.beginPath();
-        ctx.moveTo(sx,      sy-bh-th*0.5);
-        ctx.lineTo(sx+tw,   sy-bh);
-        ctx.lineTo(sx,      sy-bh+th*0.5);
-        ctx.lineTo(sx-tw,   sy-bh);
-        ctx.closePath(); ctx.fill();
-        ctx.strokeStyle='#b47e3f'; ctx.lineWidth=1.5;
-        ctx.beginPath();
-        ctx.moveTo(sx,sy-bh-th*0.5); ctx.lineTo(sx+tw,sy-bh);
-        ctx.lineTo(sx,sy-bh+th*0.5); ctx.lineTo(sx-tw,sy-bh);
-        ctx.closePath(); ctx.stroke();
+        // ── Dimensions (all relative to s) ──
+        // Main tall tower: width=50s, height=90s
+        // Connecting low wing: extends 70s to the right, height=50s
+        // Vertical white strip on tower: 8s wide, full height
+        // All walls in 2.5D: top-face + left(dark) + right(mid) faces
 
-        // left wall
-        ctx.fillStyle = '#5f3c24';
-        ctx.beginPath();
-        ctx.moveTo(sx-tw, sy-bh); ctx.lineTo(sx, sy-bh+th*0.5);
-        ctx.lineTo(sx, sy+th*0.5); ctx.lineTo(sx-tw, sy);
-        ctx.closePath(); ctx.fill();
+        const towerW  = 50*s;   // half-width of tower top face
+        const towerH  = 90*s;   // total tower height
+        const towerTh = 20*s;   // iso top-face height
+        const wingW   = 70*s;   // wing half-width
+        const wingH   = 50*s;   // wing height
+        const wingTh  = 16*s;   // wing top face height
 
-        // right wall
-        ctx.fillStyle = '#7a5134';
-        ctx.beginPath();
-        ctx.moveTo(sx+tw, sy-bh); ctx.lineTo(sx, sy-bh+th*0.5);
-        ctx.lineTo(sx, sy+th*0.5); ctx.lineTo(sx+tw, sy);
-        ctx.closePath(); ctx.fill();
+        // ── base Y references ──
+        const tBase = sy;                 // tower bottom
+        const tTop  = sy - towerH;       // tower top
+        const wBase = sy;                 // wing bottom
+        const wTop  = sy - wingH;        // wing top
 
-        // left wing
-        const wingX = sx - tw - 10*s;
-        const wingTop = sy - bh + 6*s;
-        const wingH = 32*s;
-        ctx.fillStyle = '#6c3f2a';
+        // Tower is left-center; wing extends to the right
+        const tx = sx - 12*s;            // tower center-x
+        const wx = sx + 36*s;            // wing center-x
+
+        // ─── Wing (lower right structure) ───────────────────────────────
+        // top face
+        ctx.fillStyle = '#7a5438';
         ctx.beginPath();
-        ctx.moveTo(wingX, wingTop);
-        ctx.lineTo(wingX + 18*s, wingTop - 4*s);
-        ctx.lineTo(wingX + 18*s, wingTop + wingH - 4*s);
-        ctx.lineTo(wingX, wingTop + wingH);
-        ctx.closePath(); ctx.fill();
-        ctx.fillStyle = '#9b6a43';
-        ctx.beginPath();
-        ctx.moveTo(wingX, wingTop);
-        ctx.lineTo(wingX + 18*s, wingTop - 4*s);
-        ctx.lineTo(wingX + 18*s, wingTop);
+        ctx.moveTo(wx,        wTop - wingTh*0.5);
+        ctx.lineTo(wx+wingW,  wTop);
+        ctx.lineTo(wx,        wTop + wingTh*0.5);
+        ctx.lineTo(wx-wingW,  wTop);
         ctx.closePath(); ctx.fill();
 
-        // wing windows
-        ctx.fillStyle = 'rgba(255,210,140,0.55)';
-        for (let row=0; row<3; row++) {
-            const wx = wingX + 4*s;
-            const wy = wingTop + 7*s + row * 10*s;
-            ctx.fillRect(wx, wy, 6*s, 8*s);
+        // left face (darker)
+        ctx.fillStyle = '#5a3922';
+        ctx.beginPath();
+        ctx.moveTo(wx-wingW, wTop);
+        ctx.lineTo(wx,       wTop+wingTh*0.5);
+        ctx.lineTo(wx,       wBase+wingTh*0.5);
+        ctx.lineTo(wx-wingW, wBase);
+        ctx.closePath(); ctx.fill();
+
+        // right face (lighter)
+        ctx.fillStyle = '#8c6040';
+        ctx.beginPath();
+        ctx.moveTo(wx+wingW, wTop);
+        ctx.lineTo(wx,       wTop+wingTh*0.5);
+        ctx.lineTo(wx,       wBase+wingTh*0.5);
+        ctx.lineTo(wx+wingW, wBase);
+        ctx.closePath(); ctx.fill();
+
+        // Wing brick texture lines (horizontal, subtle)
+        ctx.strokeStyle = 'rgba(0,0,0,0.12)'; ctx.lineWidth = 0.8;
+        for (let row=1; row<5; row++) {
+            const fy = wTop + (row/5)*wingH*0.92 + wingTh*0.5;
+            // left face stripe
+            ctx.beginPath();
+            ctx.moveTo(wx-wingW, wBase - (row/5)*wingH);
+            ctx.lineTo(wx, wBase - (row/5)*wingH + wingTh*0.5);
+            ctx.stroke();
         }
 
-        // center windows
-        ctx.fillStyle = 'rgba(255,214,150,0.65)';
-        for (let row=0; row<3; row++) {
-            for (let col=0; col<2; col++) {
-                const wx = sx - tw*0.7 + col*tw*0.44 + row*th*0.1;
-                const wy = sy - bh*0.72 + row*bh*0.23 - col*th*0.02;
-                ctx.fillRect(wx-4*s, wy-5*s, 8*s, 10*s);
+        // Wing windows (2 rows × 3 cols on left face)
+        ctx.fillStyle = 'rgba(255,210,140,0.55)';
+        for (let row=0; row<2; row++) {
+            for (let col=0; col<3; col++) {
+                const wy2 = wBase - wingH*0.78 + row*wingH*0.34;
+                const progressX = (col+0.5)/3;
+                const wx2 = wx-wingW + progressX*(wingW) + row*wingTh*0.1;
+                ctx.fillRect(wx2-4*s, wy2, 7*s, 9*s);
             }
         }
 
-        // front entrance panel
-        ctx.fillStyle = '#4c2f1c';
+        // Billboard on wing right face
+        const billX = wx + wingW*0.35;
+        const billY = wTop + wingTh*0.8;
+        ctx.fillStyle = 'rgba(220,230,240,0.88)';
+        ctx.fillRect(billX - 14*s, billY, 20*s, 18*s);
+        ctx.strokeStyle = '#a08060'; ctx.lineWidth = 0.8;
+        ctx.strokeRect(billX - 14*s, billY, 20*s, 18*s);
+        // billboard text lines
+        ctx.fillStyle = 'rgba(40,60,80,0.8)';
+        ctx.font = `bold ${4*s}px Arial`; ctx.textAlign = 'center';
+        ctx.fillText('DON BOSCO', billX - 4*s, billY + 5*s);
+        ctx.font = `${2.5*s}px Arial`;
+        ctx.fillText('GENT', billX - 4*s, billY + 9*s);
+        ctx.fillText('VTM-opleiding', billX - 4*s, billY + 13*s);
+
+        // ─── Main tall tower ─────────────────────────────────────────────
+        // top face
+        ctx.fillStyle = '#8c5a35';
         ctx.beginPath();
-        ctx.moveTo(sx - 9*s, sy - bh*0.08);
-        ctx.lineTo(sx + 9*s, sy - bh*0.08);
-        ctx.lineTo(sx + 8*s, sy + 6*s);
-        ctx.lineTo(sx - 8*s, sy + 6*s);
+        ctx.moveTo(tx,         tTop - towerTh*0.5);
+        ctx.lineTo(tx+towerW,  tTop);
+        ctx.lineTo(tx,         tTop + towerTh*0.5);
+        ctx.lineTo(tx-towerW,  tTop);
+        ctx.closePath(); ctx.fill();
+        ctx.strokeStyle = '#b07848'; ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        ctx.moveTo(tx, tTop-towerTh*0.5); ctx.lineTo(tx+towerW, tTop);
+        ctx.lineTo(tx, tTop+towerTh*0.5); ctx.lineTo(tx-towerW, tTop);
+        ctx.closePath(); ctx.stroke();
+
+        // left wall of tower (darker brick)
+        ctx.fillStyle = '#5a3520';
+        ctx.beginPath();
+        ctx.moveTo(tx-towerW, tTop);
+        ctx.lineTo(tx,        tTop+towerTh*0.5);
+        ctx.lineTo(tx,        tBase+towerTh*0.5);
+        ctx.lineTo(tx-towerW, tBase);
         ctx.closePath(); ctx.fill();
 
-        // sign post / school banner
-        ctx.fillStyle = '#f9d88c';
-        ctx.fillRect(sx - 22*s, sy - bh - th*0.5 - 18*s, 10*s, 16*s);
-        ctx.fillStyle = '#c43a26';
+        // right wall of tower (mid brick)
+        ctx.fillStyle = '#7a4c2e';
         ctx.beginPath();
-        ctx.moveTo(sx - 12*s, sy - bh - th*0.5 - 18*s);
-        ctx.lineTo(sx - 2*s, sy - bh - th*0.5 - 10*s);
-        ctx.lineTo(sx - 12*s, sy - bh - th*0.5 - 2*s);
+        ctx.moveTo(tx+towerW, tTop);
+        ctx.lineTo(tx,        tTop+towerTh*0.5);
+        ctx.lineTo(tx,        tBase+towerTh*0.5);
+        ctx.lineTo(tx+towerW, tBase);
         ctx.closePath(); ctx.fill();
-        ctx.fillStyle = '#ffffff';
-        ctx.font = `${6*s}px Arial`;
-        ctx.textAlign = 'center';
-        ctx.fillText('DON BOSCO', sx - 17*s, sy - bh - th*0.5 - 8*s);
+
+        // ── Vertical white concrete strip (real building feature) ──
+        // It runs full height on the right edge of the tower front face
+        const stripRX = tx + towerW*0.72;
+        const stripLX = tx + towerW*0.44;
+        // top of strip (iso top face sliver)
+        ctx.fillStyle = '#d8dfe6';
+        ctx.beginPath();
+        ctx.moveTo(stripLX, tTop + towerTh*(0.5-(stripLX-tx)/(towerW*2)));
+        ctx.lineTo(stripRX, tTop + towerTh*(0.5-(stripRX-tx)/(towerW*2)));
+        ctx.lineTo(stripRX, tBase + towerTh*(0.5-(stripRX-tx)/(towerW*2)));
+        ctx.lineTo(stripLX, tBase + towerTh*(0.5-(stripLX-tx)/(towerW*2)));
+        ctx.closePath(); ctx.fill();
+        // subtle shadow on strip left edge
+        ctx.strokeStyle = 'rgba(0,0,0,0.15)'; ctx.lineWidth = 0.8;
+        ctx.beginPath();
+        ctx.moveTo(stripLX, tTop + towerTh*(0.5-(stripLX-tx)/(towerW*2)));
+        ctx.lineTo(stripLX, tBase + towerTh*(0.5-(stripLX-tx)/(towerW*2)));
+        ctx.stroke();
+
+        // ── Brick texture on left tower wall ──
+        ctx.strokeStyle = 'rgba(30,15,5,0.14)'; ctx.lineWidth = 0.7;
+        for (let row=1; row<7; row++) {
+            ctx.beginPath();
+            const fy = tBase - (row/7)*towerH;
+            ctx.moveTo(tx-towerW, fy);
+            ctx.lineTo(tx,        fy + towerTh*0.5);
+            ctx.stroke();
+        }
+
+        // ── Tower windows: 4 floors × 2 columns on right wall ──
+        ctx.fillStyle = 'rgba(255,215,160,0.62)';
+        for (let floor=0; floor<4; floor++) {
+            for (let col=0; col<2; col++) {
+                const progressX = (col+0.4)/2;
+                const wx3 = tx + (progressX - 0.5)*towerW*2*0.65;
+                const wy3 = tBase - towerH*0.85 + floor*(towerH*0.19);
+                // perspective skew for iso right wall
+                const isoSkew = (wx3 - tx) / (towerW*2) * towerTh;
+                ctx.fillRect(wx3 - 5*s, wy3 + isoSkew*0.5, 8*s, 10*s);
+            }
+        }
+        // Left wall windows (2 floors × 1 col)
+        ctx.fillStyle = 'rgba(200,170,120,0.45)';
+        for (let floor=0; floor<3; floor++) {
+            const wx4 = tx - towerW*0.55;
+            const wy4 = tBase - towerH*0.8 + floor*(towerH*0.22);
+            ctx.fillRect(wx4-4*s, wy4, 7*s, 10*s);
+        }
+
+        // ── "DON BOSCO" lettering on left tower wall ──
+        ctx.save();
+        ctx.fillStyle = 'rgba(240,230,210,0.9)';
+        ctx.font = `bold ${7*s}px Arial`;
+        ctx.textAlign = 'left';
+        // slight skew to follow iso left face angle
+        ctx.setTransform(1, 0.12, 0, 1, 0, 0);
+        ctx.fillText('DON BOSCO', tx - towerW*0.82, tBase - towerH*0.5 + towerTh*0.2);
+        ctx.restore();
+
+        // ── Flat roof parapet detail ──
+        ctx.strokeStyle = 'rgba(200,160,100,0.5)'; ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(tx-towerW, tTop); ctx.lineTo(tx, tTop-towerTh*0.5);
+        ctx.lineTo(tx+towerW, tTop); ctx.lineTo(tx, tTop+towerTh*0.5);
+        ctx.closePath(); ctx.stroke();
+        // Chimney
+        ctx.fillStyle = '#5a3520';
+        const chx = tx + towerW*0.15, chy = tTop - towerTh*0.3;
+        ctx.fillRect(chx - 3*s, chy - 14*s, 6*s, 14*s);
+        ctx.fillStyle = '#7a4c2e';
+        ctx.fillRect(chx - 2*s, chy - 15*s, 4*s, 3*s);
+
+        // ── Ground shadow ──
+        ctx.globalAlpha = 0.18;
+        const shG = ctx.createRadialGradient(sx+10*s, sy+8*s, 10, sx+10*s, sy+8*s, 90*s);
+        shG.addColorStop(0,'rgba(0,0,0,0.7)'); shG.addColorStop(1,'rgba(0,0,0,0)');
+        ctx.fillStyle = shG;
+        ctx.beginPath(); ctx.ellipse(sx+10*s, sy+8*s, 90*s, 22*s, 0, 0, TAU); ctx.fill();
+        ctx.globalAlpha = 1;
     }
 
-    // ═══ ENEMY DRAWINGS ═══════════════════════
+    // ═══ ENEMY DRAWINGS — 2.5D style matching brick school aesthetic ══════
 
     function drawEnemyBasic(sx, sy, scale, bob) {
         const s = scale, y = sy + bob;
-        // shadow
+        // ground shadow
         ctx.fillStyle='rgba(0,0,0,0.3)';
         ctx.beginPath(); ctx.ellipse(sx, y+14*s, 10*s, 4*s, 0, 0, TAU); ctx.fill();
 
-        // body – soldier silhouette
-        ctx.fillStyle='#4f7340';
-        ctx.fillRect(sx-5*s, y-10*s, 10*s, 12*s);
-        ctx.fillStyle='#3a5a2f';
-        ctx.fillRect(sx-3*s, y-6*s, 6*s, 6*s); // vest
+        // boots with 2.5D depth
+        ctx.fillStyle='#1a1a1a';
+        ctx.fillRect(sx-4*s, y+6*s, 4*s, 5*s);
+        ctx.fillRect(sx+0.5*s, y+6*s, 4*s, 5*s);
+        ctx.fillStyle='#111';
+        ctx.fillRect(sx-4*s, y+9*s, 4*s, 2*s);
+        ctx.fillRect(sx+0.5*s, y+9*s, 4*s, 2*s);
 
-        ctx.fillStyle='#6f8c57';
-        ctx.beginPath(); ctx.arc(sx, y-14*s, 5*s, 0, TAU); ctx.fill(); // helmet
-        ctx.fillStyle='rgba(180,220,255,0.5)';
-        ctx.fillRect(sx-2*s, y-16*s, 4*s, 1.5*s); // visor
+        // legs
+        ctx.fillStyle='#2f4726';
+        ctx.fillRect(sx-4*s, y+1*s, 3.5*s, 6*s);
+        ctx.fillRect(sx+0.5*s, y+1*s, 3.5*s, 6*s);
+
+        // torso with 2.5D side shading
+        ctx.fillStyle='#4f7340'; ctx.fillRect(sx-5*s, y-10*s, 10*s, 12*s);
+        ctx.fillStyle='#3a5a2f'; ctx.fillRect(sx-3*s, y-7*s, 6*s, 7*s); // vest
+        ctx.fillStyle='#2d4624'; ctx.fillRect(sx-5*s, y-10*s, 2*s, 12*s); // left side shadow
+
+        // backpack (2.5D depth)
+        ctx.fillStyle='#324a2a'; ctx.fillRect(sx-2.5*s, y-4*s, 5*s, 6*s);
+        ctx.fillStyle='#253720'; ctx.fillRect(sx+2.5*s, y-4*s, 1.5*s, 6*s);
 
         // arms
         ctx.fillStyle='#5f8450';
         ctx.fillRect(sx-9*s, y-9*s, 3*s, 7*s);
-        ctx.fillRect(sx+6*s,  y-9*s, 3*s, 7*s);
+        ctx.fillRect(sx+6*s, y-9*s, 3*s, 7*s);
 
-        // legs
-        ctx.fillStyle='#2f4726';
-        ctx.fillRect(sx-4*s, y+2*s, 3*s, 7*s);
-        ctx.fillRect(sx+1*s, y+2*s, 3*s, 7*s);
+        // helmet with depth
+        ctx.fillStyle='#6f8c57';
+        ctx.beginPath(); ctx.arc(sx, y-14*s, 5*s, 0, TAU); ctx.fill();
+        ctx.fillStyle='#4d6440';
+        ctx.beginPath(); ctx.arc(sx+1.5*s, y-14*s, 4*s, 0, TAU); ctx.fill();
+        ctx.fillStyle='rgba(180,220,255,0.5)';
+        ctx.fillRect(sx-2*s, y-16*s, 4*s, 1.5*s);
 
         // rifle
-        ctx.fillStyle='#2a2c2f';
-        ctx.fillRect(sx+4*s, y-8*s, 12*s, 2*s);
+        ctx.fillStyle='#2a2c2f'; ctx.fillRect(sx+4*s, y-8*s, 12*s, 2*s);
+        ctx.fillStyle='#555'; ctx.fillRect(sx+4*s, y-8*s, 12*s, 0.8*s);
 
         drawHealthBar(sx, y-22*s, s, 0.65, '#e74c3c');
     }
@@ -602,8 +753,8 @@
         ctx.fillStyle='rgba(0,0,0,0.3)';
         ctx.beginPath(); ctx.ellipse(sx, y+14*s, 12*s, 4*s, 0, 0, TAU); ctx.fill();
 
-        // jet body
-        ctx.fillStyle='#cfd7de';
+        // jet body with 2.5D shading
+        ctx.fillStyle='#bdc7cf';
         ctx.beginPath();
         ctx.moveTo(sx+16*s, y);
         ctx.lineTo(sx+2*s, y+7*s); ctx.lineTo(sx-6*s, y+10*s);
@@ -612,14 +763,24 @@
         ctx.lineTo(sx-14*s, y-3*s); ctx.lineTo(sx-4*s, y-3*s);
         ctx.lineTo(sx-6*s, y-10*s); ctx.lineTo(sx+2*s, y-7*s);
         ctx.closePath(); ctx.fill();
+        // underside shade
+        ctx.fillStyle='#8a9aa8';
+        ctx.beginPath();
+        ctx.moveTo(sx+16*s, y); ctx.lineTo(sx+2*s, y+7*s);
+        ctx.lineTo(sx-6*s, y+10*s); ctx.lineTo(sx-4*s, y+3*s);
+        ctx.lineTo(sx-14*s, y+3*s); ctx.lineTo(sx-10*s, y);
+        ctx.closePath(); ctx.fill();
 
         ctx.fillStyle='#7ed7ff';
-        ctx.beginPath(); ctx.ellipse(sx+3*s, y, 4*s, 2.5*s, 0, 0, TAU); ctx.fill(); // cockpit
+        ctx.beginPath(); ctx.ellipse(sx+3*s, y, 4*s, 2.5*s, 0, 0, TAU); ctx.fill();
 
         // engine flame
         ctx.fillStyle='rgba(255,155,30,0.85)';
         ctx.beginPath(); ctx.moveTo(sx-14*s,y);
-        ctx.lineTo(sx-20*s, y+3*s); ctx.lineTo(sx-20*s, y-3*s); ctx.closePath(); ctx.fill();
+        ctx.lineTo(sx-22*s, y+4*s); ctx.lineTo(sx-22*s, y-4*s); ctx.closePath(); ctx.fill();
+        ctx.fillStyle='rgba(255,220,80,0.7)';
+        ctx.beginPath(); ctx.moveTo(sx-14*s,y);
+        ctx.lineTo(sx-19*s, y+2*s); ctx.lineTo(sx-19*s, y-2*s); ctx.closePath(); ctx.fill();
 
         drawHealthBar(sx, y-18*s, s, 0.45, '#f1c40f');
     }
@@ -629,25 +790,32 @@
         ctx.fillStyle='rgba(0,0,0,0.4)';
         ctx.beginPath(); ctx.ellipse(sx, y+16*s, 16*s, 5*s, 0, 0, TAU); ctx.fill();
 
-        // tracks
-        ctx.fillStyle='#3f4d36';
-        ctx.fillRect(sx-18*s, y-10*s, 7*s, 22*s);
-        ctx.fillRect(sx+11*s,  y-10*s, 7*s, 22*s);
+        // tracks with 2.5D sides
+        ctx.fillStyle='#2a3328'; ctx.fillRect(sx-18*s, y-10*s, 7*s, 22*s);
+        ctx.fillRect(sx+11*s, y-10*s, 7*s, 22*s);
+        ctx.fillStyle='#3f4d36'; ctx.fillRect(sx-18*s, y-11*s, 7*s, 4*s);
+        ctx.fillRect(sx+11*s, y-11*s, 7*s, 4*s);
+        // track detail lines
+        ctx.strokeStyle='rgba(0,0,0,0.25)'; ctx.lineWidth=0.8;
+        for(let i=0;i<4;i++){
+            ctx.beginPath(); ctx.moveTo(sx-18*s, y-10*s+i*5.5*s); ctx.lineTo(sx-11*s, y-10*s+i*5.5*s); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(sx+11*s, y-10*s+i*5.5*s); ctx.lineTo(sx+18*s, y-10*s+i*5.5*s); ctx.stroke();
+        }
 
-        // hull
-        ctx.fillStyle='#667852';
-        ctx.fillRect(sx-12*s, y-11*s, 24*s, 22*s);
+        // hull with 2.5D shading
+        ctx.fillStyle='#667852'; ctx.fillRect(sx-12*s, y-11*s, 24*s, 22*s);
+        ctx.fillStyle='#4d5a3d'; ctx.fillRect(sx-12*s, y-11*s, 5*s, 22*s); // left shadow
+        ctx.fillStyle='#78896a'; ctx.fillRect(sx-12*s, y-11*s, 24*s, 4*s); // top highlight
         ctx.strokeStyle='#2f3828'; ctx.lineWidth=1.2;
         ctx.strokeRect(sx-12*s, y-11*s, 24*s, 22*s);
 
-        // turret
-        ctx.fillStyle='#73895c';
-        ctx.beginPath(); ctx.arc(sx, y, 7*s, 0, TAU); ctx.fill();
-        ctx.strokeStyle='#435138'; ctx.stroke();
+        // turret with 2.5D
+        ctx.fillStyle='#73895c'; ctx.beginPath(); ctx.arc(sx, y, 7*s, 0, TAU); ctx.fill();
+        ctx.fillStyle='#5a6e47'; ctx.beginPath(); ctx.arc(sx+2*s, y+1*s, 6*s, 0, TAU); ctx.fill();
+        ctx.strokeStyle='#435138'; ctx.lineWidth=1; ctx.beginPath(); ctx.arc(sx, y, 7*s, 0, TAU); ctx.stroke();
 
-        // barrel
-        ctx.fillStyle='#2e332c';
-        ctx.fillRect(sx+6*s, y-1.5*s, 14*s, 3*s);
+        ctx.fillStyle='#2e332c'; ctx.fillRect(sx+6*s, y-1.5*s, 14*s, 3*s);
+        ctx.fillStyle='#444'; ctx.fillRect(sx+6*s, y-1.5*s, 14*s, 1.2*s); // barrel top
         ctx.fillRect(sx+18*s, y-2*s, 4*s, 4*s);
 
         drawHealthBar(sx, y-22*s, s, 1.0, '#8e44ad');
@@ -655,9 +823,7 @@
 
     function drawEnemyBoss(sx, sy, scale, bob) {
         const s = scale, y = sy + bob;
-        // halo spin
-        ctx.save(); ctx.translate(sx, y);
-        ctx.rotate(t * 0.012);
+        ctx.save(); ctx.translate(sx, y); ctx.rotate(t * 0.012);
         ctx.strokeStyle='rgba(241,196,15,0.7)'; ctx.lineWidth=2*s;
         for (let i=0;i<6;i++) {
             ctx.rotate(Math.PI/3);
@@ -668,9 +834,16 @@
         ctx.fillStyle='rgba(0,0,0,0.4)';
         ctx.beginPath(); ctx.ellipse(sx, y+22*s, 20*s, 6*s, 0, 0, TAU); ctx.fill();
 
+        // main body with 2.5D gradient
         const g = ctx.createRadialGradient(sx-4*s, y-5*s, 5*s, sx, y, 24*s);
         g.addColorStop(0,'#6d7f93'); g.addColorStop(0.55,'#34495e'); g.addColorStop(1,'#1b2838');
         ctx.fillStyle=g; ctx.beginPath(); ctx.arc(sx,y,24*s,0,TAU); ctx.fill();
+
+        // 2.5D side shading on boss sphere
+        const sideG = ctx.createRadialGradient(sx+14*s, y+10*s, 2, sx+14*s, y+10*s, 22*s);
+        sideG.addColorStop(0,'rgba(0,0,0,0.35)'); sideG.addColorStop(1,'rgba(0,0,0,0)');
+        ctx.fillStyle=sideG; ctx.beginPath(); ctx.arc(sx,y,24*s,0,TAU); ctx.fill();
+
         ctx.fillStyle='#1f2a35'; ctx.beginPath(); ctx.arc(sx,y,14*s,0,TAU); ctx.fill();
         ctx.fillStyle='#c0392b'; ctx.fillRect(sx+9*s,y-3*s,12*s,6*s);
         ctx.fillStyle='#f1c40f';

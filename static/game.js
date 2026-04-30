@@ -6,6 +6,9 @@ let autoStartEnabled = false;
 let lastTime = 0;
 let autoWaveTimeout = null;
 let gameStarted = false;
+let gameSpeed = 1.0; // Global speed multiplier: 1.0 = normal, 2.0 = double speed, 0.5 = half speed
+gameSpeed = Math.max(0.1, gameSpeed); // Prevent division by zero
+
 
 // ================= TOWER DEFINITIES =================
 // type: { color, range, damage, fireRate(ms), cost, name }
@@ -202,6 +205,184 @@ function drawBackground() {
     }
 }
 
+// ── Don Bosco school at the end of the path (tile 19,12 → pixel 780,500) ──
+let _schoolFrame = 0;
+function drawSchoolInGame() {
+    _schoolFrame++;
+    const TAU = Math.PI * 2;
+
+    // End of path: tile (19,12) → pixel (780, 500)
+    // Place school centered just beyond that point
+    const sx = 19 * TILE_SIZE + 20;   // 780
+    const sy = 12 * TILE_SIZE + 20;   // 500
+    const s  = canvas.height / 600 * 0.95;
+
+    const towerW = 50*s, towerH = 90*s, towerTh = 20*s;
+    const wingW  = 70*s, wingH  = 50*s, wingTh  = 16*s;
+
+    const tBase = sy, tTop = sy - towerH;
+    const wBase = sy, wTop = sy - wingH;
+    const tx = sx - 12*s;
+    const wx = sx + 36*s;
+
+    // ── Wing (lower right structure) ──
+    ctx.fillStyle = '#7a5438';
+    ctx.beginPath();
+    ctx.moveTo(wx, wTop - wingTh*0.5); ctx.lineTo(wx+wingW, wTop);
+    ctx.lineTo(wx, wTop + wingTh*0.5); ctx.lineTo(wx-wingW, wTop);
+    ctx.closePath(); ctx.fill();
+
+    ctx.fillStyle = '#5a3922';
+    ctx.beginPath();
+    ctx.moveTo(wx-wingW, wTop);    ctx.lineTo(wx, wTop+wingTh*0.5);
+    ctx.lineTo(wx, wBase+wingTh*0.5); ctx.lineTo(wx-wingW, wBase);
+    ctx.closePath(); ctx.fill();
+
+    ctx.fillStyle = '#8c6040';
+    ctx.beginPath();
+    ctx.moveTo(wx+wingW, wTop);    ctx.lineTo(wx, wTop+wingTh*0.5);
+    ctx.lineTo(wx, wBase+wingTh*0.5); ctx.lineTo(wx+wingW, wBase);
+    ctx.closePath(); ctx.fill();
+
+    // Wing brick lines
+    ctx.strokeStyle = 'rgba(0,0,0,0.12)'; ctx.lineWidth = 0.8;
+    for (let row = 1; row < 5; row++) {
+        ctx.beginPath();
+        ctx.moveTo(wx-wingW, wBase - (row/5)*wingH);
+        ctx.lineTo(wx,       wBase - (row/5)*wingH + wingTh*0.5);
+        ctx.stroke();
+    }
+
+    // Wing windows
+    ctx.fillStyle = 'rgba(255,210,140,0.55)';
+    for (let row = 0; row < 2; row++) {
+        for (let col = 0; col < 3; col++) {
+            const wy2 = wBase - wingH*0.78 + row*wingH*0.34;
+            const wx2 = wx - wingW + ((col+0.5)/3)*wingW + row*wingTh*0.1;
+            ctx.fillRect(wx2 - 4*s, wy2, 7*s, 9*s);
+        }
+    }
+
+    // Billboard on wing
+    const billX = wx + wingW*0.35, billY = wTop + wingTh*0.8;
+    ctx.fillStyle = 'rgba(220,230,240,0.88)';
+    ctx.fillRect(billX - 14*s, billY, 20*s, 18*s);
+    ctx.strokeStyle = '#a08060'; ctx.lineWidth = 0.8;
+    ctx.strokeRect(billX - 14*s, billY, 20*s, 18*s);
+    ctx.fillStyle = 'rgba(40,60,80,0.8)';
+    ctx.font = `bold ${4*s}px Arial`; ctx.textAlign = 'center';
+    ctx.fillText('DON BOSCO', billX - 4*s, billY + 5*s);
+    ctx.font = `${2.5*s}px Arial`;
+    ctx.fillText('GENT', billX - 4*s, billY + 9*s);
+    ctx.fillText('VTM-opleiding', billX - 4*s, billY + 13*s);
+
+    // ── Main tall tower ──
+    ctx.fillStyle = '#8c5a35';
+    ctx.beginPath();
+    ctx.moveTo(tx, tTop - towerTh*0.5); ctx.lineTo(tx+towerW, tTop);
+    ctx.lineTo(tx, tTop + towerTh*0.5); ctx.lineTo(tx-towerW, tTop);
+    ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = '#b07848'; ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.moveTo(tx, tTop-towerTh*0.5); ctx.lineTo(tx+towerW, tTop);
+    ctx.lineTo(tx, tTop+towerTh*0.5); ctx.lineTo(tx-towerW, tTop);
+    ctx.closePath(); ctx.stroke();
+
+    // Tower left wall
+    ctx.fillStyle = '#5a3520';
+    ctx.beginPath();
+    ctx.moveTo(tx-towerW, tTop); ctx.lineTo(tx, tTop+towerTh*0.5);
+    ctx.lineTo(tx, tBase+towerTh*0.5); ctx.lineTo(tx-towerW, tBase);
+    ctx.closePath(); ctx.fill();
+
+    // Tower right wall
+    ctx.fillStyle = '#7a4c2e';
+    ctx.beginPath();
+    ctx.moveTo(tx+towerW, tTop); ctx.lineTo(tx, tTop+towerTh*0.5);
+    ctx.lineTo(tx, tBase+towerTh*0.5); ctx.lineTo(tx+towerW, tBase);
+    ctx.closePath(); ctx.fill();
+
+    // Vertical concrete strip
+    const stripRX = tx + towerW*0.72, stripLX = tx + towerW*0.44;
+    ctx.fillStyle = '#d8dfe6';
+    ctx.beginPath();
+    ctx.moveTo(stripLX, tTop + towerTh*(0.5-(stripLX-tx)/(towerW*2)));
+    ctx.lineTo(stripRX, tTop + towerTh*(0.5-(stripRX-tx)/(towerW*2)));
+    ctx.lineTo(stripRX, tBase + towerTh*(0.5-(stripRX-tx)/(towerW*2)));
+    ctx.lineTo(stripLX, tBase + towerTh*(0.5-(stripLX-tx)/(towerW*2)));
+    ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = 'rgba(0,0,0,0.15)'; ctx.lineWidth = 0.8;
+    ctx.beginPath();
+    ctx.moveTo(stripLX, tTop  + towerTh*(0.5-(stripLX-tx)/(towerW*2)));
+    ctx.lineTo(stripLX, tBase + towerTh*(0.5-(stripLX-tx)/(towerW*2)));
+    ctx.stroke();
+
+    // Brick texture on tower left wall
+    ctx.strokeStyle = 'rgba(30,15,5,0.14)'; ctx.lineWidth = 0.7;
+    for (let row = 1; row < 7; row++) {
+        const fy = tBase - (row/7)*towerH;
+        ctx.beginPath();
+        ctx.moveTo(tx-towerW, fy); ctx.lineTo(tx, fy + towerTh*0.5); ctx.stroke();
+    }
+
+    // Tower windows (4 floors × 2 cols on right wall)
+    ctx.fillStyle = 'rgba(255,215,160,0.62)';
+    for (let floor = 0; floor < 4; floor++) {
+        for (let col = 0; col < 2; col++) {
+            const progressX = (col+0.4)/2;
+            const wx3 = tx + (progressX - 0.5)*towerW*2*0.65;
+            const wy3 = tBase - towerH*0.85 + floor*(towerH*0.19);
+            const isoSkew = (wx3 - tx) / (towerW*2) * towerTh;
+            ctx.fillRect(wx3 - 5*s, wy3 + isoSkew*0.5, 8*s, 10*s);
+        }
+    }
+    // Left wall windows
+    ctx.fillStyle = 'rgba(200,170,120,0.45)';
+    for (let floor = 0; floor < 3; floor++) {
+        const wx4 = tx - towerW*0.55;
+        const wy4 = tBase - towerH*0.8 + floor*(towerH*0.22);
+        ctx.fillRect(wx4 - 4*s, wy4, 7*s, 10*s);
+    }
+
+    // "DON BOSCO" lettering on left tower wall
+    // Target position on the wall (no setTransform — use save/translate/restore)
+    const textX = tx - towerW * 0.78;
+    const textY = tBase - towerH * 0.5 + towerTh * 0.2;
+    ctx.save();
+    ctx.translate(textX, textY);
+    ctx.transform(1, 0.12, 0, 1, 0, 0);   // slight iso skew, relative to textX/textY
+    ctx.fillStyle = 'rgba(240,230,210,0.9)';
+    ctx.font = `bold ${7*s}px Arial`;
+    ctx.textAlign = 'left';
+    ctx.fillText('DON BOSCO', 0, 0);
+    ctx.restore();
+
+    // Roof parapet
+    ctx.strokeStyle = 'rgba(200,160,100,0.5)'; ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(tx-towerW, tTop); ctx.lineTo(tx, tTop-towerTh*0.5);
+    ctx.lineTo(tx+towerW, tTop); ctx.lineTo(tx, tTop+towerTh*0.5);
+    ctx.closePath(); ctx.stroke();
+
+    // Chimney
+    ctx.fillStyle = '#5a3520';
+    const chx = tx + towerW*0.15, chy = tTop - towerTh*0.3;
+    ctx.fillRect(chx - 3*s, chy - 14*s, 6*s, 14*s);
+    ctx.fillStyle = '#7a4c2e';
+    ctx.fillRect(chx - 2*s, chy - 15*s, 4*s, 3*s);
+
+    // Warm window glow pulse
+    ctx.globalAlpha = 0.10 + 0.05 * Math.sin(_schoolFrame * 0.05);
+    const winGlow = ctx.createRadialGradient(tx, sy - towerH*0.5, 5, tx, sy - towerH*0.5, 55*s);
+    winGlow.addColorStop(0, 'rgba(255,200,100,0.7)');
+    winGlow.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = winGlow;
+    ctx.beginPath(); ctx.arc(tx, sy - towerH*0.5, 55*s, 0, TAU); ctx.fill();
+    ctx.globalAlpha = 1;
+
+    ctx.textAlign = 'left'; // reset
+}
+
 function drawPath() {
     const startX = path[0].x * TILE_SIZE + 20;
     const startY = path[0].y * TILE_SIZE + 20;
@@ -243,9 +424,9 @@ function drawPath() {
 
 function formatLives(lives) {
     if (lives <= 0) return '0';
-    const visibleHearts = Math.min(5, lives);
+    const visibleHearts = Math.min(1, lives);
     const hearts = '\u2665'.repeat(visibleHearts);
-    return lives > 5 ? `${hearts} x${lives}` : hearts;
+    return lives > 0 ? `${hearts} x${lives}` : hearts;
 }
 
 // ================= TOWER =================
@@ -279,18 +460,18 @@ class Tower {
         this.tempestRadius = this.type === 9 ? TEMPEST_ZONE_RADIUS : 0;
         this.tempestTickMs = this.type === 9 ? TEMPEST_ZONE_TICK_MS : 0;
         this.tempestDurationMs = this.type === 9 ? TEMPEST_ZONE_DURATION_MS : 0;
-        this.tempestSlowFactor = this.type === 9 ? 0.86 : 1;
-        this.tempestMaxTargets = this.type === 9 ? 2 : 0;
+        this.tempestSlowFactor = this.type === 9 ? 0.98 : 1;
+        this.tempestMaxTargets = this.type === 9 ? 3 : 0;
         this.tempestPulseDamageScale = this.type === 9 ? 0.85 : 1;
-        this.bankIncome = this.type === 10 ? 22 : 0;
+        this.bankIncome = this.type === 10 ? 25 : 0;
     }
 
-    update() {
+    update(delta) {
         const now = Date.now();
 
         if (this.isAoe) {
             const enemiesInRange = this.getEnemiesInRange();
-            if (enemiesInRange.length > 0 && now - this.lastShot > this.fireRate) {
+            if (enemiesInRange.length > 0 && now - this.lastShot > this.fireRate / gameSpeed) {
                 this.pulse(enemiesInRange);
                 this.lastShot = now;
             }
@@ -299,7 +480,8 @@ class Tower {
 
         this.findTarget();
         if (this.type === 10) {
-            if (now - this.lastShot > this.fireRate) {
+            if (gameState.waveActive == false) return;
+            if (now - this.lastShot > this.fireRate / gameSpeed) {
                 const payout = Math.round(this.bankIncome * (Date.now() < bankOverdriveUntil ? 2 : 1));
                 gameState.gold += payout;
                 damageTexts.push({
@@ -328,12 +510,12 @@ class Tower {
                 return;
             }
 
-            if (!this.isCharging && now - this.lastShot > this.fireRate) {
+            if (!this.isCharging && now - this.lastShot > this.fireRate / gameSpeed) {
                 this.isCharging = true;
                 this.chargeStart = now;
             }
 
-            if (this.isCharging && now - this.chargeStart >= this.chargeDuration) {
+            if (this.isCharging && now - this.chargeStart >= this.chargeDuration / gameSpeed) {
                 this.shoot();
                 this.lastShot = now;
                 this.isCharging = false;
@@ -341,7 +523,7 @@ class Tower {
             return;
         }
 
-        if (this.target && now - this.lastShot > this.fireRate) {
+        if (this.target && now - this.lastShot > this.fireRate / gameSpeed) {
             this.shoot();
             this.lastShot = now;
         }
@@ -349,7 +531,7 @@ class Tower {
 
     updateTempest(now) {
         if (!this.target) return;
-        if (now - this.lastShot <= this.fireRate) return;
+        if (now - this.lastShot <= this.fireRate / gameSpeed) return;
 
         tempestZones.push({
             x: this.target.x,
@@ -462,8 +644,8 @@ class Tower {
             x: this.x,
             y: this.y,
             maxRadius: this.range,
-            life: 18,
-            maxLife: 18,
+            life: 28,
+            maxLife: 28,
             color: this.color
         });
 
@@ -500,26 +682,70 @@ class Tower {
         drawTowerVolume(this.x, this.y + 6, 16, 10, 'rgba(255,255,255,0.08)', 'rgba(0,0,0,0.14)', 'rgba(255,255,255,0.12)');
 
         if (this.type === 1) {
-            // Basic: klassieke blauwe koepel
-            ctx.fillStyle = '#3f2a14';
-            ctx.fillRect(this.x - 16, this.y - 16, 32, 32);
-            ctx.fillStyle = '#214d78';
+            // Basic: armoured turret — hexagonal base plate, layered dome, glowing ring, fat barrel
+            const pulse = 0.5 + 0.5 * Math.sin(now / 200);
+
+            // hex base plate
+            ctx.fillStyle = '#1c3a52';
+            ctx.beginPath();
+            for (let i = 0; i < 6; i++) {
+                const a = (i / 6) * Math.PI * 2 - Math.PI / 6;
+                i === 0 ? ctx.moveTo(this.x + Math.cos(a) * 17, this.y + Math.sin(a) * 17)
+                        : ctx.lineTo(this.x + Math.cos(a) * 17, this.y + Math.sin(a) * 17);
+            }
+            ctx.closePath(); ctx.fill();
+            ctx.strokeStyle = '#3a7aaa'; ctx.lineWidth = 1.2;
+            ctx.stroke();
+
+            // outer ring glow
+            ctx.strokeStyle = `rgba(0,180,255,${0.28 + pulse * 0.22})`;
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, 17, 0, Math.PI * 2);
+            ctx.stroke();
+
+            // dome body with gradient
+            const domeGrad = ctx.createRadialGradient(this.x - 4, this.y - 4, 2, this.x, this.y, 13);
+            domeGrad.addColorStop(0, '#5ab8e8');
+            domeGrad.addColorStop(0.5, '#1f6fa8');
+            domeGrad.addColorStop(1, '#0d3a5c');
+            ctx.fillStyle = domeGrad;
             ctx.beginPath();
             ctx.arc(this.x, this.y, 13, 0, Math.PI * 2);
             ctx.fill();
-            ctx.strokeStyle = '#7fd7ff';
-            ctx.lineWidth = 2;
+
+            // dome highlight arc
+            ctx.strokeStyle = 'rgba(180,235,255,0.7)';
+            ctx.lineWidth = 1.8;
             ctx.beginPath();
-            ctx.arc(this.x, this.y, 10, 0.3, Math.PI - 0.3);
+            ctx.arc(this.x - 2, this.y - 2, 9, Math.PI * 1.1, Math.PI * 1.85);
             ctx.stroke();
 
+            // inner pulse ring
+            ctx.strokeStyle = `rgba(100,210,255,${0.4 + pulse * 0.5})`;
+            ctx.lineWidth = 1.2;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, 6 + pulse * 1.5, 0, Math.PI * 2);
+            ctx.stroke();
+
+            // barrel — wider, with muzzle ring and recoil hint
             ctx.save();
             ctx.translate(this.x, this.y);
             ctx.rotate(angle);
-            ctx.fillStyle = '#1e2328';
-            ctx.fillRect(0, -3, 16, 6);
+            // barrel housing
+            ctx.fillStyle = '#0e1d2a';
+            ctx.beginPath();
+            ctx.roundRect(1, -4, 18, 8, 2);
+            ctx.fill();
+            // barrel highlight stripe
+            ctx.fillStyle = '#2a5878';
+            ctx.fillRect(2, -3, 16, 2);
+            // muzzle brake
             ctx.fillStyle = '#00BFFF';
-            ctx.fillRect(13, -2, 5, 4);
+            ctx.fillRect(17, -3.5, 5, 7);
+            ctx.strokeStyle = 'rgba(0,190,255,0.6)';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(17, -3.5, 5, 7);
             ctx.restore();
         } else if (this.type === 2) {
             // Heavy: pantserkast met dikke loop
@@ -649,22 +875,88 @@ class Tower {
             ctx.arc(this.x, this.y, 16 + pulse * 4, 0, Math.PI * 2);
             ctx.stroke();
         } else if (this.type === 7) {
-            // Launcher: heavy artillery top view
-            ctx.fillStyle = '#5f321d';
-            ctx.fillRect(this.x - 16, this.y - 16, 32, 32);
-            ctx.fillStyle = '#8f4f2b';
-            ctx.fillRect(this.x - 12, this.y - 12, 24, 24);
-            ctx.strokeStyle = '#d88d57';
-            ctx.lineWidth = 1.5;
-            ctx.strokeRect(this.x - 12, this.y - 12, 24, 24);
+            // Launcher: heavy artillery — reinforced octagonal base, chunky rotating platform, thick barrel with blast ring
+            const pulse = 0.5 + 0.5 * Math.sin(now / 300);
+            const timeSinceShot = now - this.lastShot;
+            const recoil = timeSinceShot < 120 ? (1 - timeSinceShot / 120) * 5 : 0;
 
+            // octagonal base
+            ctx.fillStyle = '#3a1e0c';
+            ctx.beginPath();
+            for (let i = 0; i < 8; i++) {
+                const a = (i / 8) * Math.PI * 2 + Math.PI / 8;
+                i === 0 ? ctx.moveTo(this.x + Math.cos(a) * 17, this.y + Math.sin(a) * 17)
+                        : ctx.lineTo(this.x + Math.cos(a) * 17, this.y + Math.sin(a) * 17);
+            }
+            ctx.closePath(); ctx.fill();
+            ctx.strokeStyle = '#b05a28'; ctx.lineWidth = 1.4;
+            ctx.stroke();
+
+            // outer orange glow ring
+            ctx.strokeStyle = `rgba(255,130,40,${0.2 + pulse * 0.25})`;
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, 17, 0, Math.PI * 2);
+            ctx.stroke();
+
+            // turret body — dark armoured circle
+            const turretGrad = ctx.createRadialGradient(this.x - 3, this.y - 3, 2, this.x, this.y, 13);
+            turretGrad.addColorStop(0, '#b06030');
+            turretGrad.addColorStop(0.5, '#7a3a18');
+            turretGrad.addColorStop(1, '#3a1a08');
+            ctx.fillStyle = turretGrad;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, 13, 0, Math.PI * 2);
+            ctx.fill();
+
+            // 4 vent slots around turret
+            for (let i = 0; i < 4; i++) {
+                const va = angle + (i / 4) * Math.PI * 2 + Math.PI / 8;
+                const vx = this.x + Math.cos(va) * 9;
+                const vy = this.y + Math.sin(va) * 9;
+                ctx.save();
+                ctx.translate(vx, vy);
+                ctx.rotate(va);
+                ctx.fillStyle = 'rgba(255,100,20,0.5)';
+                ctx.fillRect(-4, -1.5, 8, 3);
+                ctx.restore();
+            }
+
+            // dome highlight
+            ctx.strokeStyle = 'rgba(220,140,60,0.55)';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.arc(this.x - 2, this.y - 2, 9, Math.PI * 1.1, Math.PI * 1.8);
+            ctx.stroke();
+
+            // barrel — thick, with recoil offset and muzzle blast ring
             ctx.save();
             ctx.translate(this.x, this.y);
             ctx.rotate(angle);
-            ctx.fillStyle = '#2f2d2a';
-            ctx.fillRect(0, -5, 14, 10);
-            ctx.fillStyle = '#ff9b57';
-            ctx.fillRect(12, -4, 10, 8);
+            // barrel body (recoil pulls it back)
+            ctx.fillStyle = '#1a0e06';
+            ctx.beginPath();
+            ctx.roundRect(-recoil, -5.5, 22, 11, 2);
+            ctx.fill();
+            // reinforcement bands
+            ctx.fillStyle = '#6a3418';
+            ctx.fillRect(4 - recoil, -5.5, 3, 11);
+            ctx.fillRect(10 - recoil, -5.5, 3, 11);
+            // muzzle tip — orange glow
+            ctx.fillStyle = '#ff7a30';
+            ctx.beginPath();
+            ctx.roundRect(20 - recoil, -4.5, 7, 9, 1.5);
+            ctx.fill();
+            // muzzle glow halo
+            ctx.globalAlpha = 0.35 + pulse * 0.3;
+            const muzzleGlow = ctx.createRadialGradient(24 - recoil, 0, 1, 24 - recoil, 0, 10);
+            muzzleGlow.addColorStop(0, 'rgba(255,160,40,0.9)');
+            muzzleGlow.addColorStop(1, 'rgba(255,80,0,0)');
+            ctx.fillStyle = muzzleGlow;
+            ctx.beginPath();
+            ctx.arc(24 - recoil, 0, 10, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.globalAlpha = 1;
             ctx.restore();
         } else if (this.type === 8) {
             // Tesla: coil emitter
@@ -1333,10 +1625,10 @@ class Projectile {
         }
     }
 
-    update() {
+    update(delta) {
         if (this.pierceLeft > 1) {
-            this.x += this.vx;
-            this.y += this.vy;
+            this.x += this.vx * delta;
+            this.y += this.vy * delta;
 
             for (let enemy of gameState.enemies) {
                 if (!isEnemyTargetable(enemy)) continue;
@@ -1362,8 +1654,8 @@ class Projectile {
         const dy   = this.target.y - this.y;
         const dist = Math.hypot(dx, dy);
 
-        this.x += (dx / dist) * this.speed;
-        this.y += (dy / dist) * this.speed;
+        this.x += (dx / dist) * this.speed * delta;
+        this.y += (dy / dist) * this.speed * delta;
 
         if (dist < 10) {
             this.dealHit(this.target);
@@ -1499,9 +1791,9 @@ function spawnWave() {
     gameState.spawningWave = true;
     setWaveButton(false);
 
-    const baseHp     = Math.round(25 * Math.pow(1.15, gameState.wave));
-    const baseSpeed  = roundTo(0.8 + gameState.wave * 0.02, 3);
-    const baseReward = 8 + gameState.wave * 2;
+    const baseHp     = Math.round(25 * Math.pow(1.155, gameState.wave));
+    const baseSpeed  = roundTo((0.8 + gameState.wave * 0.03) * gameSpeed, 3);
+    const baseReward = 8 + gameState.wave * 2.5;
 
     const queue = buildWaveQueue(gameState.wave);
     let i = 0;
@@ -1514,7 +1806,7 @@ function spawnWave() {
         }
         gameState.enemies.push(new Enemy(queue[i], baseHp, baseSpeed, baseReward));
         i++;
-    }, 700);
+    }, 700 / gameSpeed);
 }
 
 // ================= UI FUNCTIES =================
@@ -1544,15 +1836,15 @@ function getLauncherTowerCount() {
 }
 
 function getTeslaStormCooldownLeft() {
-    return Math.max(0, TESLA_STORM_COOLDOWN - (Date.now() - teslaStormLastCast));
+    return Math.max(0, (TESLA_STORM_COOLDOWN / gameSpeed) - (Date.now() - teslaStormLastCast));
 }
 
 function getBankRainCooldownLeft() {
-    return Math.max(0, BANK_RAIN_COOLDOWN - (Date.now() - bankRainLastCast));
+    return Math.max(0, (BANK_RAIN_COOLDOWN / gameSpeed) - (Date.now() - bankRainLastCast));
 }
 
 function getBarrageCooldownLeft() {
-    return Math.max(0, BARRAGE_COOLDOWN - (Date.now() - barrageLastCast));
+    return Math.max(0, (BARRAGE_COOLDOWN / gameSpeed) - (Date.now() - barrageLastCast));
 }
 
 function buildTeslaGatePairs(teslaTowers) {
@@ -1630,7 +1922,7 @@ function castGoldRain() {
     if (getBankRainCooldownLeft() > 0) return;
 
     bankRainLastCast = Date.now();
-    bankOverdriveUntil = Date.now() + BANK_RAIN_OVERDRIVE_MS;
+    bankOverdriveUntil = Date.now() + (BANK_RAIN_OVERDRIVE_MS / gameSpeed);
     const instantGold = 80 + bankCount * 35 + gameState.wave * 10;
     gameState.gold += instantGold;
     damageTexts.push({
@@ -1769,6 +2061,10 @@ function canApplySpecialUpgrade(tower) {
     return tower.specialLevel < special.max;
 }
 
+function canApplyFireUpgrade(tower) {
+    return tower.fireRate > 120;
+}
+
 function applySpecialUpgrade(tower) {
     if (!canApplySpecialUpgrade(tower)) return false;
 
@@ -1850,13 +2146,15 @@ function updateUpgradePanel() {
         infoLines.join('<br>');
 
     const canAfford = gameState.gold >= t.upgradeCost;
+    const fireMaxed = usesFire && !canApplyFireUpgrade(t);
     fireBtn.style.display = usesFire ? 'block' : 'none';
     damageBtn.style.display = usesDamage ? 'block' : 'none';
     rangeBtn.style.display = usesRange ? 'block' : 'none';
-    fireBtn.disabled   = !canAfford || !usesFire;
+    fireBtn.disabled   = !canAfford || !usesFire || fireMaxed;
     damageBtn.disabled = !canAfford || !usesDamage;
     rangeBtn.disabled  = !canAfford || !usesRange;
     specialBtn.disabled = !canAfford || !canApplySpecialUpgrade(t);
+    fireBtn.title = fireMaxed ? 'Fire rate is already maxed.' : 'Improve tower fire rate.';
     specialBtn.textContent = `${special.name} (${t.specialLevel}/${special.max})`;
     specialBtn.title = special.desc;
 }
@@ -1884,6 +2182,7 @@ function canvasPointToWorld(e) {
 function doUpgrade(type) {
     const t = gameState.selectedTower;
     if (!t || gameState.gold < t.upgradeCost) return;
+    if (type === 'fire' && !canApplyFireUpgrade(t)) return;
     if (type === 'special' && !canApplySpecialUpgrade(t)) return;
 
     gameState.gold -= t.upgradeCost;
@@ -1934,12 +2233,16 @@ function loop(time = 0) {
         return;
     }
 
-    const delta = (time - lastTime) / 16.67;
+    const delta = (time - lastTime) / 16.67 * gameSpeed;
     lastTime = time;
+
+    // Cap delta to prevent projectiles skipping enemies at high speeds
+    const cappedDelta = Math.min(delta, 2);
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawBackground();
     drawPath();
+    drawSchoolInGame();
 
     if (!gameStarted) {
         requestAnimationFrame(loop);
@@ -1952,7 +2255,7 @@ function loop(time = 0) {
         gameState.towers.forEach(t => { t.update(); t.draw(); });
 
         gameState.enemies = gameState.enemies.filter(e => {
-            if (!e.update(delta)) return false;
+            if (!e.update(cappedDelta)) return false;
             // Give reward on kill before removing from array
             if (e.health <= 0 && !e.rewardGiven) {
                 gameState.gold  += e.reward;
@@ -1965,7 +2268,7 @@ function loop(time = 0) {
         });
 
         gameState.projectiles = gameState.projectiles.filter(p => {
-            const ok = p.update();
+            const ok = p.update(cappedDelta);
             p.draw();
             return ok;
         });
@@ -2104,24 +2407,71 @@ function loop(time = 0) {
         pulseEffects = pulseEffects.filter(p => p.life > 0);
         for (let p of pulseEffects) {
             const progress = 1 - (p.life / p.maxLife);
-            const radius = Math.max(10, p.maxRadius * progress);
             const alpha = p.life / p.maxLife;
+            const eased = 1 - Math.pow(1 - progress, 2.2);
+            const mainR = Math.max(8, p.maxRadius * eased);
 
             ctx.save();
-            ctx.globalAlpha = 0.25 * alpha;
-            ctx.fillStyle = p.color;
-            ctx.beginPath();
-            ctx.arc(p.x, p.y, radius, 0, Math.PI * 2);
-            ctx.fill();
 
-            ctx.globalAlpha = 0.8 * alpha;
+            // ── bright central flash burst (first 30% of animation) ──
+            if (progress < 0.3) {
+                const flashT = 1 - (progress / 0.3);
+                ctx.globalAlpha = flashT * 0.9;
+                const flashR = p.maxRadius * 0.5 * (progress / 0.3);
+                const flashGrad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, Math.max(1, flashR));
+                flashGrad.addColorStop(0,   'rgba(255,255,255,1)');
+                flashGrad.addColorStop(0.25, p.color);
+                flashGrad.addColorStop(1,   'rgba(0,0,0,0)');
+                ctx.fillStyle = flashGrad;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, Math.max(1, flashR), 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // ── outer glow pass (wide, blurred) ──
+            ctx.globalAlpha = alpha * 0.55;
             ctx.strokeStyle = p.color;
-            ctx.lineWidth = 2 + (1 - progress) * 2;
+            ctx.lineWidth = 18;
+            ctx.shadowBlur = 28;
+            ctx.shadowColor = p.color;
             ctx.beginPath();
-            ctx.arc(p.x, p.y, radius, 0, Math.PI * 2);
+            ctx.arc(p.x, p.y, mainR, 0, Math.PI * 2);
             ctx.stroke();
-            ctx.restore();
 
+            // ── mid ring pass ──
+            ctx.globalAlpha = alpha * 0.8;
+            ctx.strokeStyle = p.color;
+            ctx.lineWidth = 7;
+            ctx.shadowBlur = 18;
+            ctx.shadowColor = p.color;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, mainR, 0, Math.PI * 2);
+            ctx.stroke();
+
+            // ── white-hot leading edge ──
+            ctx.globalAlpha = alpha * 0.95;
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 2.5;
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = '#ffffff';
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, mainR, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+
+            // ── trailing ring ──
+            const trailR = Math.max(4, p.maxRadius * eased * 0.72);
+            ctx.globalAlpha = alpha * 0.5;
+            ctx.strokeStyle = p.color;
+            ctx.lineWidth = 3;
+            ctx.shadowBlur = 8;
+            ctx.shadowColor = p.color;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, trailR, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+
+            ctx.restore();
             p.life--;
         }
 
@@ -2293,6 +2643,25 @@ document.getElementById('pauseBtn').onclick = () => {
         requestAnimationFrame(loop);
     }
 };
+document.getElementById('gamespeedToggle').onclick = () => {
+    if (gameSpeed === 1) {
+        gameSpeed = 1.5;
+    } else if (gameSpeed === 1.5) {
+        gameSpeed = 2;
+    } else if (gameSpeed === 2) {
+        gameSpeed = 3;
+    } else if (gameSpeed === 3) {
+        gameSpeed = 5;
+    } else {
+        gameSpeed = 1;
+    }
+    updateSpeedButton();
+};
+
+function updateSpeedButton() {
+    const btn = document.getElementById('gamespeedToggle');
+    btn.textContent = `Speed x${gameSpeed}`;
+}
 
 document.getElementById('playBtn').onclick = () => {
     gameStarted = true;
@@ -2309,7 +2678,9 @@ document.getElementById('backBtn').onclick = () => {
     document.getElementById('startMenu').style.display = 'block';
 };
 
+
 // START
 setWaveButton(true);
 updateAutoStartButton();
+updateSpeedButton();
 loop();
